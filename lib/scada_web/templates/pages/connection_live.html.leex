@@ -1,0 +1,9 @@
+<div>
+  <p class="mt-2 text-xl text-slate-500">
+    Connection state: <%= if @connected, do: "Connected", else: "Disconnected" %>
+  </p>
+
+  <button phx-click="reconnect" class="mt-4 p-2 bg-blue-500 text-white rounded">
+    Reconnect
+  </button>
+</div>
