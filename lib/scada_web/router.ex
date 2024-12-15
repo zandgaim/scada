@@ -18,19 +18,17 @@ defmodule ScadaWeb.Router do
   scope "/", ScadaWeb do
     pipe_through :browser
 
-    # Home route handled by PageController
-    get "/", PageController, :home
-    live "/connection", Pages.ConnectionLive
+    live "/", Pages.ConnectionLive
   end
 
   if Application.compile_env(:scada, :dev_routes) do
-    import Phoenix.LiveDashboard.Router
+    # import Phoenix.LiveDashboard.Router
 
     scope "/dev" do
       pipe_through :browser
 
       # LiveView route for connection page
-      live "/connection", Pages.ConnectionLive
+      live "/", Pages.ConnectionLive
     end
   end
 end

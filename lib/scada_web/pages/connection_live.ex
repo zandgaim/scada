@@ -124,10 +124,11 @@ defmodule ScadaWeb.Pages.ConnectionLive do
   def handle_event("fetch_data", %{"field_name" => field_name}, socket) do
     if field_name != "" do
       # Split the field_name string by commas and trim any extra spaces
-      field_list = field_name
-                   |> String.split(",")  # Split by comma
-                   |> Enum.map(&String.trim/1)  # Trim whitespace from each field
-  
+      field_list =
+        field_name
+        |> String.split(",")
+        |> Enum.map(&String.trim/1)
+
       # Call the fetch_data function with the list of fields
       Scada.PythonPort.fetch_data(field_list)
 
@@ -136,7 +137,6 @@ defmodule ScadaWeb.Pages.ConnectionLive do
       {:noreply, assign(socket, message: "Field name cannot be empty.")}
     end
   end
-
 
   def handle_info(%{:status => status, :message => message, :data => data}, socket) do
     # Prevent unnecessary state updates

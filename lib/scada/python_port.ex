@@ -1,11 +1,11 @@
 defmodule Scada.PythonPort do
   use GenServer
 
-  @python_env Application.get_env(:scada, :python_env)
-  @ads_service Application.get_env(:scada, :ads_service)
+  @python_env Application.compile_env(:scada, :python_env)
+  @ads_service Application.compile_env(:scada, :ads_service)
 
-  @ams_net_id Application.get_env(:scada, :ams_net_id)
-  @ams_port Application.get_env(:scada, :ams_port)
+  @ams_net_id Application.compile_env(:scada, :ams_net_id)
+  @ams_port Application.compile_env(:scada, :ams_port)
 
   @retry_interval 5_000
 
@@ -51,11 +51,10 @@ defmodule Scada.PythonPort do
   end
 
   def handle_cast(:connect, state) do
-    request =
-      %{
-        command: "connect",
-      }
-      |> send_to_ads()
+    %{
+      command: "connect"
+    }
+    |> send_to_ads()
 
     {:noreply, state}
   end
@@ -64,12 +63,11 @@ defmodule Scada.PythonPort do
     if state.connected do
       IO.puts("Fetching field #{inspect(data)}...")
 
-      request =
-        %{
-          command: "fetch_data",
-          data: data
-        }
-        |> send_to_ads()
+      %{
+        command: "fetch_data",
+        data: data
+      }
+      |> send_to_ads()
 
       {:reply, %{"status" => "fetching", "message" => "Request sent to fetch"}, state}
     else
