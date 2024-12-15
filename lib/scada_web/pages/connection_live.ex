@@ -7,7 +7,14 @@ defmodule ScadaWeb.Pages.ConnectionLive do
     PubSub.subscribe(Scada.PubSub, "connection_status")
 
     # Initialize connection state with a default message and empty field input
-    {:ok, assign(socket, status: "waiting", message: "Not connected to machine", field_name: "")}
+    {:ok,
+     assign(socket,
+       status: "waiting",
+       message: "Not connected to machine",
+       field_name: "",
+       last_status: nil,
+       last_message: nil
+     )}
   end
 
   def render(assigns) do
@@ -22,7 +29,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
       <div class="field-input">
         <label for="field_name">Enter Field Name to Query:</label>
         <input type="text" id="field_name" name="field_name" phx-change="validate_field" value="<%= @field_name %>" placeholder="Field name (e.g., Temperature)" />
-        <button phx-click="query_field">Query</button>
+        <button phx-click="get_field">Query</button>
       </div>
 
       <!-- Context or additional information will be added here later -->
@@ -37,33 +44,29 @@ defmodule ScadaWeb.Pages.ConnectionLive do
         position: fixed;
         top: 0;
         left: 0;
-        width: 100%;  /* Header takes the full width of the page */
-        background-color: #007B8C;  /* Calm teal color */
+        width: 100%;
+        background-color: #007B8C;
         color: white;
-        padding: 5px 0;  /* Minimal padding to make the header thinner */
+        padding: 5px 0;
         text-align: center;
         font-family: 'Arial', sans-serif;
-        font-size: 16px;  /* Slightly smaller font for a thinner header */
+        font-size: 16px;
         z-index: 1000;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }
 
-      /* Status message style */
       .status-message {
-        font-size: 10px;  /* Even smaller font size for the message */
-        color: #D1E5E5;  /* Lighter text color for the message */
-        font-weight: normal;
+        font-size: 10px;
+        color: #D1E5E5;
         margin-top: 2px;
       }
 
-      /* Main container styling */
       .connection-container {
-        margin-top: 60px; /* Space for the fixed header */
+        margin-top: 60px;
         padding: 20px;
         text-align: center;
       }
 
-      /* Field input section */
       .field-input {
         margin-top: 30px;
         font-size: 14px;
@@ -93,7 +96,6 @@ defmodule ScadaWeb.Pages.ConnectionLive do
         background-color: #005f66;
       }
 
-      /* Context or additional info placeholder */
       .context-placeholder {
         margin-top: 20px;
         font-size: 12px;
@@ -109,20 +111,26 @@ defmodule ScadaWeb.Pages.ConnectionLive do
     {:noreply, assign(socket, field_name: field_name)}
   end
 
-  def handle_event("query_field", _params, socket) do
+  def handle_event("get_field", _params, socket) do
     # Trigger the request to the PythonPort module for the specified field
-    Scada.PythonPort.query_field(socket.assigns.field_name)
+    Scada.PythonPort.get_field(socket.assigns.field_name)
 
     # Update status while querying
-    {:noreply,
-     assign(socket,
-       status: "querying",
-       message: "Querying PLC for field: #{socket.assigns.field_name}"
-     )}
+    {:noreply, socket}
   end
 
   def handle_info(%{"status" => status, "message" => message}, socket) do
-    # Handle incoming connection status updates
-    {:noreply, assign(socket, status: status, message: message)}
+    # Prevent unnecessary state updates
+    if status != socket.assigns.last_status or message != socket.assigns.last_message do
+      {:noreply,
+       assign(socket,
+         status: status,
+         message: message,
+         last_status: status,
+         last_message: message
+       )}
+    else
+      {:noreply, socket}
+    end
   end
 end

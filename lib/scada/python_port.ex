@@ -3,8 +3,7 @@ defmodule Scada.PythonPort do
 
   @python_env "venv/Scripts/python"
   @ads_service "priv/python/ads_service.py"
-  @retry_interval 3_000
-  @heartbeat_interval 5_000
+  @retry_interval 5_000
 
   @ams_net_id "192.168.56.1.1.1"
   @port "851"
@@ -16,77 +15,35 @@ defmodule Scada.PythonPort do
   def init(:ok) do
     # Initial state setup
     state = %{
-      port: nil,
       connected: false,
       result: %{"status" => "waiting", "message" => "Not connected to machine"}
     }
 
-    # Start the retry connection loop
-    schedule_retry()
+    check_connection()
     {:ok, state}
   end
 
-  def handle_info(:retry_connection, state) do
-    unless state.connected do
-      GenServer.cast(__MODULE__, {:connect, @ams_net_id, @port})
-    end
-
-    # Schedule the next retry
-    schedule_retry()
+  def handle_info(:check_connection, state) do
+    GenServer.cast(__MODULE__, {:connect, @ams_net_id, @port})
+    check_connection()
     {:noreply, state}
   end
 
-  def handle_info(:heartbeat, state) do
-    if state.connected do
-      GenServer.cast(__MODULE__, {:heartbeat, @ams_net_id, @port})
-    end
-
-    # Schedule the next heartbeat check
-    schedule_heartbeat()
-    {:noreply, state}
-  end
-
-  # Handle response data from the Python process
-  def handle_info({port, {:data, data}}, state) do
+  def handle_info({_port, {:data, data}}, state) do
     IO.puts("Received response = #{inspect(Jason.decode(data))}")
 
-    if port == state.port do
-      case Jason.decode(data) do
-        {:ok, %{"status" => "connected", "message" => message}} ->
-          # Handle successful connection
-          new_state = %{
-            state
-            | connected: true,
-              result: %{"status" => "connected", "message" => message}
-          }
+    case Jason.decode(data) do
+      {:ok, %{"routing_key" => routing_key} = response} ->
+        handle_routing_key(routing_key, response, state)
 
-          schedule_heartbeat()
-          broadcast_status(new_state.result)
-          {:noreply, new_state}
+      {:error, _reason} ->
+        new_state = %{
+          state
+          | result: %{"status" => "error", "message" => "Invalid data from Python"}
+        }
 
-        {:ok, %{"status" => "error", "message" => error_message}} ->
-          # Handle connection error
-          new_state = %{
-            state
-            | connected: false,
-              result: %{"status" => "error", "message" => error_message}
-          }
-
-          broadcast_status(new_state.result)
-          {:noreply, new_state}
-
-        {:error, _reason} ->
-          # Handle unexpected data format
-          new_state = %{
-            state
-            | result: %{"status" => "error", "message" => "Invalid data from Python"}
-          }
-
-          broadcast_status(new_state.result)
-          {:noreply, new_state}
-      end
-    else
-      {:noreply, state}
+        broadcast_status(new_state.result)
+        {:noreply, new_state}
     end
   end
 
@@ -103,62 +60,61 @@ defmodule Scada.PythonPort do
       "connect"
     ]
 
-    # Start the Python process for connecting
-    port = Port.open({:spawn_executable, @python_env}, [:binary, args: command])
+    Port.open({:spawn_executable, @python_env}, [:binary, args: command])
+    {:noreply, state}
+  end
 
-    # Update state while connecting
+  # Routing key handlers
+  defp handle_routing_key("connect", %{"status" => "connected", "message" => message}, state) do
     new_state = %{
       state
-      | result: %{"status" => "connecting", "message" => "Attempting to connect to machine..."}
+      | connected: true,
+        result: %{"status" => "connected", "message" => message}
     }
 
     broadcast_status(new_state.result)
-    {:noreply, %{new_state | port: port}}
+    {:noreply, new_state}
   end
 
-  def handle_cast({:heartbeat, ams_net_id, ams_port}, %{port: port} = state) do
-    IO.puts("Sending heartbeat to Python...")
+  defp handle_routing_key("connect", %{"status" => "error", "message" => error_message}, state) do
+    new_state = %{
+      state
+      | connected: false,
+        result: %{"status" => "error", "message" => error_message}
+    }
 
-    command = [
-      @ads_service,
-      "--ams_net_id",
-      ams_net_id,
-      "--ams_port",
-      ams_port,
-      "--command",
-      "heartbeat"
-    ]
-
-    Port.open({:spawn_executable, @python_env}, [:binary, args: command])
-
-    {:noreply, state}
+    broadcast_status(new_state.result)
+    {:noreply, new_state}
   end
 
-  def handle_cast({:heartbeat, ams_net_id, ams_port}, %{port: port} = state) do
-    IO.puts("Sending heartbeat to Python using the existing port...")
+  defp handle_routing_key(
+         "fetch_data",
+         %{"status" => status, "message" => message, "data" => data},
+         state
+       ) do
+    new_state = %{
+      state
+      | result: %{"status" => status, "message" => message, "data" => data}
+    }
 
-    # Prepare the heartbeat command for the existing port
-    command = [
-      "--command",
-      "heartbeat"
-    ]
-
-    # Send the heartbeat command via the existing port
-    Port.command(port, command)
-
-    {:noreply, state}
+    broadcast_status(new_state.result)
+    {:noreply, new_state}
   end
 
-  defp schedule_retry do
-    Process.send_after(self(), :retry_connection, @retry_interval)
+  defp handle_routing_key(_unknown_key, %{"message" => message}, state) do
+    new_state = %{
+      state
+      | result: %{"status" => "error", "message" => "Unhandled routing key: #{message}"}
+    }
+
+    broadcast_status(new_state.result)
+    {:noreply, new_state}
   end
 
-  # Utility to schedule heartbeat check every 10 seconds
-  defp schedule_heartbeat do
-    Process.send_after(self(), :heartbeat, @heartbeat_interval)
+  defp check_connection do
+    Process.send_after(self(), :check_connection, @retry_interval)
   end
 
-  # Utility to broadcast status updates using PubSub
   defp broadcast_status(status) do
     Phoenix.PubSub.broadcast(Scada.PubSub, "connection_status", status)
   end
