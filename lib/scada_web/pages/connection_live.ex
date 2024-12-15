@@ -13,7 +13,8 @@ defmodule ScadaWeb.Pages.ConnectionLive do
        message: "Not connected to machine",
        field_name: "",
        last_status: nil,
-       last_message: nil
+       last_message: nil,
+       data: nil
      )}
   end
 
@@ -28,14 +29,23 @@ defmodule ScadaWeb.Pages.ConnectionLive do
       <!-- Field Input Form -->
       <div class="field-input">
         <form phx-submit="fetch_data">
-          <label for="field_name">Enter Field Name to Query:</label>
+          <label for="field_name">Enter Field Name:</label>
           <input type="text" id="field_name" name="field_name" phx-change="validate_field" value="<%= @field_name %>" />
           <button type="submit">Query</button>
         </form>
       </div>
 
       <div class="context-placeholder">
-        <p>Additional context will be displayed here later.</p>
+        <%= if @data do %>
+          <ul>
+            <%= for {key, value} <- @data do %>
+              <li><strong><%= key %>:</strong> <%= value %></li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p>No data available</p>
+        <% end %>
+      </div>
       </div>
     </div>
 
@@ -111,10 +121,15 @@ defmodule ScadaWeb.Pages.ConnectionLive do
     {:noreply, assign(socket, field_name: field_name)}
   end
 
-  # Handle the fetch data event triggered by the button
   def handle_event("fetch_data", %{"field_name" => field_name}, socket) do
     if field_name != "" do
-      Scada.PythonPort.fetch_data(field_name)
+      # Split the field_name string by commas and trim any extra spaces
+      field_list = field_name
+                   |> String.split(",")  # Split by comma
+                   |> Enum.map(&String.trim/1)  # Trim whitespace from each field
+  
+      # Call the fetch_data function with the list of fields
+      Scada.PythonPort.fetch_data(field_list)
 
       {:noreply, assign(socket, message: "Fetching data...")}
     else
@@ -122,7 +137,8 @@ defmodule ScadaWeb.Pages.ConnectionLive do
     end
   end
 
-  def handle_info(%{:status => status, :message => message}, socket) do
+
+  def handle_info(%{:status => status, :message => message, :data => data}, socket) do
     # Prevent unnecessary state updates
     if status != socket.assigns.last_status or message != socket.assigns.last_message do
       {:noreply,
@@ -130,7 +146,8 @@ defmodule ScadaWeb.Pages.ConnectionLive do
          status: status,
          message: message,
          last_status: status,
-         last_message: message
+         last_message: message,
+         data: data
        )}
     else
       {:noreply, socket}

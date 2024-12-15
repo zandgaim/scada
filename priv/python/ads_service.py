@@ -3,7 +3,6 @@ import json
 import pyads
 import argparse
 
-
 def connect_to_plc(ams_net_id, ams_port):
     try:
         plc = pyads.Connection(ams_net_id, ams_port)
@@ -82,13 +81,25 @@ def handle_command(command, ams_net_id, ams_port, var_list=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ams_net_id", required=True)
-    parser.add_argument("--ams_port", required=True)
-    parser.add_argument("--command", required=True)
-    parser.add_argument("--data", nargs='*', default=[])
+    parser.add_argument("--request", required=True)
 
     args = parser.parse_args()
 
-    response = handle_command(args.command, args.ams_net_id, int(args.ams_port), args.data)
+    try:
+        # Parse the JSON data received in the '--request' argument
+        request_data = json.loads(args.request)
+    except json.JSONDecodeError as e:
+        print(json.dumps({"routing_key": "error", "message": f"Invalid JSON input: {str(e)}"}))
+        sys.exit(1)
+
+    command = request_data.get("command")
+    ams_net_id = request_data.get("ams_net_id")
+    ams_port = request_data.get("ams_port")
+    var_list = request_data.get("data", None) 
+
+    if command:
+        response = handle_command(command, ams_net_id, ams_port, var_list)
+    else:
+        response = {"routing_key": "error", "message": "No command provided"}
 
     print(json.dumps(response, indent=4))

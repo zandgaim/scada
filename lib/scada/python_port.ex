@@ -6,7 +6,7 @@ defmodule Scada.PythonPort do
   @retry_interval 5_000
 
   @ams_net_id "192.168.56.1.1.1"
-  @port "851"
+  @ams_port 851
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -25,7 +25,7 @@ defmodule Scada.PythonPort do
   end
 
   def handle_info(:check_connection, state) do
-    GenServer.cast(__MODULE__, {:connect, @ams_net_id, @port})
+    GenServer.cast(__MODULE__, :connect)
     check_connection()
     {:noreply, state}
   end
@@ -49,38 +49,27 @@ defmodule Scada.PythonPort do
     end
   end
 
-  def handle_cast({:connect, ams_net_id, ams_port}, state) do
-    command = [
-      @ads_service,
-      "--ams_net_id",
-      ams_net_id,
-      "--ams_port",
-      ams_port,
-      "--command",
-      "connect"
-    ]
+  def handle_cast(:connect, state) do
+    request =
+      %{
+        command: "connect",
+      }
+      |> send_to_ads()
 
-    Port.open({:spawn_executable, @python_env}, [:binary, args: command])
     {:noreply, state}
   end
 
-  def handle_call({:fetch_data, fields}, _from, state) do
+  def handle_call({:fetch_data, data}, _from, state) do
     if state.connected do
-      IO.puts("Fetching field #{fields}...")
+      IO.puts("Fetching field #{inspect(data)}...")
 
-      command = [
-        @ads_service,
-        "--ams_net_id",
-        @ams_net_id,
-        "--ams_port",
-        @port,
-        "--command",
-        "fetch_data",
-        "--data",
-        fields
-      ]
+      request =
+        %{
+          command: "fetch_data",
+          data: data
+        }
+        |> send_to_ads()
 
-      Port.open({:spawn_executable, @python_env}, [:binary, args: command])
       {:reply, %{"status" => "fetching", "message" => "Request sent to fetch"}, state}
     else
       {:reply, %{"status" => "error", "message" => "Not connected to machine"}, state}
@@ -89,6 +78,24 @@ defmodule Scada.PythonPort do
 
   def fetch_data(fields) do
     GenServer.call(__MODULE__, {:fetch_data, fields})
+  end
+
+  defp send_to_ads(request) do
+    request =
+      %{
+        ams_net_id: @ams_net_id,
+        ams_port: @ams_port
+      }
+      |> Map.merge(request)
+      |> Jason.encode!()
+
+    command = [
+      @ads_service,
+      "--request",
+      request
+    ]
+
+    Port.open({:spawn_executable, @python_env}, [:binary, args: command])
   end
 
   defp handle_routing_key("connect", %{"status" => "connected", "message" => message}, state) do
@@ -115,13 +122,15 @@ defmodule Scada.PythonPort do
     {:noreply, new_state}
   end
 
-  # Handling fetch data updates that should not affect the status
+  defp handle_routing_key("fetch_data", %{"message" => message, "data" => data}, state) do
+    new_state = %{state | message: message, data: data}
+
+    broadcast(new_state)
+    {:noreply, new_state}
+  end
+
   defp handle_routing_key("fetch_data", %{"message" => message}, state) do
-    new_state = %{
-      state
-      | # Only update the message, not the status
-        message: message
-    }
+    new_state = %{state | message: message, data: nil}
 
     broadcast(new_state)
     {:noreply, new_state}
@@ -145,7 +154,8 @@ defmodule Scada.PythonPort do
   defp broadcast(state) do
     combined_result = %{
       :status => state.status,
-      :message => state.message
+      :message => state.message,
+      :data => state.data
     }
 
     Phoenix.PubSub.broadcast(
