@@ -27,12 +27,13 @@ defmodule ScadaWeb.Pages.ConnectionLive do
 
       <!-- Field Input Form -->
       <div class="field-input">
-        <label for="field_name">Enter Field Name to Query:</label>
-        <input type="text" id="field_name" name="field_name" phx-change="validate_field" value="<%= @field_name %>" placeholder="Field name (e.g., Temperature)" />
-        <button phx-click="get_field">Query</button>
+        <form phx-submit="fetch_data">
+          <label for="field_name">Enter Field Name to Query:</label>
+          <input type="text" id="field_name" name="field_name" phx-change="validate_field" value="<%= @field_name %>" />
+          <button type="submit">Query</button>
+        </form>
       </div>
 
-      <!-- Context or additional information will be added here later -->
       <div class="context-placeholder">
         <p>Additional context will be displayed here later.</p>
       </div>
@@ -107,19 +108,21 @@ defmodule ScadaWeb.Pages.ConnectionLive do
   end
 
   def handle_event("validate_field", %{"field_name" => field_name}, socket) do
-    # Validate the entered field name (you can add more logic here)
     {:noreply, assign(socket, field_name: field_name)}
   end
 
-  def handle_event("get_field", _params, socket) do
-    # Trigger the request to the PythonPort module for the specified field
-    Scada.PythonPort.get_field(socket.assigns.field_name)
+  # Handle the fetch data event triggered by the button
+  def handle_event("fetch_data", %{"field_name" => field_name}, socket) do
+    if field_name != "" do
+      Scada.PythonPort.fetch_data(field_name)
 
-    # Update status while querying
-    {:noreply, socket}
+      {:noreply, assign(socket, message: "Fetching data...")}
+    else
+      {:noreply, assign(socket, message: "Field name cannot be empty.")}
+    end
   end
 
-  def handle_info(%{"status" => status, "message" => message}, socket) do
+  def handle_info(%{:status => status, :message => message}, socket) do
     # Prevent unnecessary state updates
     if status != socket.assigns.last_status or message != socket.assigns.last_message do
       {:noreply,

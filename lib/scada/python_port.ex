@@ -13,10 +13,11 @@ defmodule Scada.PythonPort do
   end
 
   def init(:ok) do
-    # Initial state setup
     state = %{
       connected: false,
-      result: %{"status" => "waiting", "message" => "Not connected to machine"}
+      status: "waiting",
+      message: "Not connected to machine",
+      data: nil
     }
 
     check_connection()
@@ -39,17 +40,16 @@ defmodule Scada.PythonPort do
       {:error, _reason} ->
         new_state = %{
           state
-          | result: %{"status" => "error", "message" => "Invalid data from Python"}
+          | status: "error",
+            message: "Invalid data from Python"
         }
 
-        broadcast_status(new_state.result)
+        broadcast(new_state)
         {:noreply, new_state}
     end
   end
 
   def handle_cast({:connect, ams_net_id, ams_port}, state) do
-    IO.puts("Trying to connect...")
-
     command = [
       @ads_service,
       "--ams_net_id",
@@ -64,15 +64,42 @@ defmodule Scada.PythonPort do
     {:noreply, state}
   end
 
-  # Routing key handlers
+  def handle_call({:fetch_data, fields}, _from, state) do
+    if state.connected do
+      IO.puts("Fetching field #{fields}...")
+
+      command = [
+        @ads_service,
+        "--ams_net_id",
+        @ams_net_id,
+        "--ams_port",
+        @port,
+        "--command",
+        "fetch_data",
+        "--data",
+        fields
+      ]
+
+      Port.open({:spawn_executable, @python_env}, [:binary, args: command])
+      {:reply, %{"status" => "fetching", "message" => "Request sent to fetch"}, state}
+    else
+      {:reply, %{"status" => "error", "message" => "Not connected to machine"}, state}
+    end
+  end
+
+  def fetch_data(fields) do
+    GenServer.call(__MODULE__, {:fetch_data, fields})
+  end
+
   defp handle_routing_key("connect", %{"status" => "connected", "message" => message}, state) do
     new_state = %{
       state
       | connected: true,
-        result: %{"status" => "connected", "message" => message}
+        status: "connected",
+        message: message
     }
 
-    broadcast_status(new_state.result)
+    broadcast(new_state)
     {:noreply, new_state}
   end
 
@@ -80,34 +107,34 @@ defmodule Scada.PythonPort do
     new_state = %{
       state
       | connected: false,
-        result: %{"status" => "error", "message" => error_message}
+        status: "error",
+        message: error_message
     }
 
-    broadcast_status(new_state.result)
+    broadcast(new_state)
     {:noreply, new_state}
   end
 
-  defp handle_routing_key(
-         "fetch_data",
-         %{"status" => status, "message" => message, "data" => data},
-         state
-       ) do
+  # Handling fetch data updates that should not affect the status
+  defp handle_routing_key("fetch_data", %{"message" => message}, state) do
     new_state = %{
       state
-      | result: %{"status" => status, "message" => message, "data" => data}
+      | # Only update the message, not the status
+        message: message
     }
 
-    broadcast_status(new_state.result)
+    broadcast(new_state)
     {:noreply, new_state}
   end
 
   defp handle_routing_key(_unknown_key, %{"message" => message}, state) do
     new_state = %{
       state
-      | result: %{"status" => "error", "message" => "Unhandled routing key: #{message}"}
+      | status: "error",
+        message: "Unhandled routing key: #{message}"
     }
 
-    broadcast_status(new_state.result)
+    broadcast(new_state)
     {:noreply, new_state}
   end
 
@@ -115,7 +142,16 @@ defmodule Scada.PythonPort do
     Process.send_after(self(), :check_connection, @retry_interval)
   end
 
-  defp broadcast_status(status) do
-    Phoenix.PubSub.broadcast(Scada.PubSub, "connection_status", status)
+  defp broadcast(state) do
+    combined_result = %{
+      :status => state.status,
+      :message => state.message
+    }
+
+    Phoenix.PubSub.broadcast(
+      Scada.PubSub,
+      "connection_status",
+      combined_result
+    )
   end
 end
