@@ -8,7 +8,11 @@
 import Config
 
 config :scada,
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  python_env: "venv/Scripts/python",
+  ads_service: "priv/python/ads_service.py",
+  ams_net_id: "192.168.56.1.1.1",
+  ams_port: 851
 
 # Configures the endpoint
 config :scada, ScadaWeb.Endpoint,
@@ -21,13 +25,6 @@ config :scada, ScadaWeb.Endpoint,
   pubsub_server: Scada.PubSub,
   live_view: [signing_salt: "B96JDybz"]
 
-# Configures the mailer
-#
-# By default it uses the "Local" adapter which stores the emails
-# locally. You can see the emails in your browser, at "/dev/mailbox".
-#
-# For production it's recommended to configure a different adapter
-# at the `config/runtime.exs`.
 config :scada, Scada.Mailer, adapter: Swoosh.Adapters.Local
 
 # Configure esbuild (the version is required)

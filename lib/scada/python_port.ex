@@ -1,12 +1,13 @@
 defmodule Scada.PythonPort do
   use GenServer
 
-  @python_env "venv/Scripts/python"
-  @ads_service "priv/python/ads_service.py"
-  @retry_interval 5_000
+  @python_env Application.get_env(:scada, :python_env)
+  @ads_service Application.get_env(:scada, :ads_service)
 
-  @ams_net_id "192.168.56.1.1.1"
-  @ams_port 851
+  @ams_net_id Application.get_env(:scada, :ams_net_id)
+  @ams_port Application.get_env(:scada, :ams_port)
+
+  @retry_interval 5_000
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
