@@ -14,7 +14,9 @@ defmodule ScadaWeb.Pages.ConnectionLive do
        field_name: "",
        last_status: nil,
        last_message: nil,
-       data: nil
+       data: nil,
+       tcp_status: "Not established",
+       tcp_message: ""
      )}
   end
 
@@ -22,9 +24,15 @@ defmodule ScadaWeb.Pages.ConnectionLive do
     ~L"""
     <div id="connection-status" class="flex flex-col items-center p-4 bg-gray-100 min-h-screen">
       <!-- Header -->
-      <header class="w-full bg-teal-700 text-white text-center py-4 shadow-lg">
-        <h2 class="text-xl font-semibold">Connection Status: <%= @status %></h2>
-        <p class="text-sm text-gray-300"><%= @message %></p>
+      <header class="w-full bg-teal-700 text-white text-center py-6 shadow-lg rounded-lg">
+        <h2 class="text-2xl font-semibold">Connection Status: <%= @status %></h2>
+        <p class="text-lg text-gray-300 mt-1"><%= @message %></p>
+
+        <!-- TCP Status and Message Section -->
+        <div class="mt-4 p-4 bg-teal-800 rounded-lg shadow-md">
+          <p class="text-sm font-semibold text-teal-100">TCP Status:</p>
+          <p class="text-sm text-teal-200"><%= @tcp_status %></p>
+        </div>
       </header>
 
       <!-- Main Content -->
@@ -202,19 +210,26 @@ defmodule ScadaWeb.Pages.ConnectionLive do
     end
   end
 
-  def handle_info(%{:status => status, :message => message, :data => data}, socket) do
+  def handle_info(
+        %{
+          :status => status,
+          :message => message,
+          :data => data,
+          :tcp_status => tcp_status,
+          :tcp_message => tcp_message
+        },
+        socket
+      ) do
     # Prevent unnecessary state updates
-    if status != socket.assigns.last_status or message != socket.assigns.last_message do
-      {:noreply,
-       assign(socket,
-         status: status,
-         message: message,
-         last_status: status,
-         last_message: message,
-         data: data
-       )}
-    else
-      {:noreply, socket}
-    end
+    {:noreply,
+     assign(socket,
+       status: status,
+       message: message,
+       last_status: status,
+       last_message: message,
+       data: data,
+       tcp_status: tcp_status,
+       tcp_message: tcp_message
+     )}
   end
 end
