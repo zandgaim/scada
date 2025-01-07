@@ -78,7 +78,7 @@ defmodule Scada.PythonPort do
 
     broadcast(new_state)
     connect()
-    Logger.warn("TCP connection closed. Retrying...")
+    Logger.warning("TCP connection closed. Retrying...")
     {:noreply, new_state}
   end
 
@@ -126,25 +126,6 @@ defmodule Scada.PythonPort do
     Logger.info("Request sent to ADS: #{inspect(encoded_request)}")
   end
 
-  defp send_to_ads(request) do
-    request =
-      %{
-        ams_net_id: @ams_net_id,
-        ams_port: @ams_port
-      }
-      |> Map.merge(request)
-      |> Jason.encode!()
-
-    command = [
-      @ads_service,
-      "--request",
-      request
-    ]
-
-    Logger.info("Sending request to ADS service: #{inspect(command)}")
-    Port.open({:spawn_executable, @python_env}, [:binary, args: command])
-  end
-
   defp handle_routing_key(
          socket,
          "connect",
@@ -186,7 +167,7 @@ defmodule Scada.PythonPort do
   defp handle_routing_key(_socket, _unknown_key, %{"message" => message}, state) do
     new_state = %{state | status: "error", message: "Unhandled routing key: #{message}"}
     broadcast(new_state)
-    Logger.warn("Unhandled routing key: #{message}")
+    Logger.warning("Unhandled routing key: #{message}")
     {:noreply, new_state}
   end
 
