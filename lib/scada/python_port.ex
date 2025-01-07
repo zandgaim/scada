@@ -67,7 +67,14 @@ defmodule Scada.PythonPort do
   end
 
   def handle_info({:tcp_closed, _socket}, state) do
-    new_state = %{state | connected: false, socket: nil, tcp_status: "Disconnected", tcp_message: "Retrying connection"}
+    new_state = %{
+      state
+      | connected: false,
+        socket: nil,
+        tcp_status: "Disconnected",
+        tcp_message: "Retrying connection"
+    }
+
     broadcast(new_state)
     connect()
     Logger.warn("TCP connection closed. Retrying...")
@@ -75,7 +82,14 @@ defmodule Scada.PythonPort do
   end
 
   def handle_info({:tcp_error, _socket, reason}, state) do
-    new_state = %{state | connected: false, socket: nil, tcp_status: "Error", tcp_message: "TCP error: #{inspect(reason)}"}
+    new_state = %{
+      state
+      | connected: false,
+        socket: nil,
+        tcp_status: "Error",
+        tcp_message: "TCP error: #{inspect(reason)}"
+    }
+
     broadcast(new_state)
     connect()
     Logger.error("TCP error encountered: #{inspect(reason)}")
@@ -130,14 +144,24 @@ defmodule Scada.PythonPort do
     Port.open({:spawn_executable, @python_env}, [:binary, args: command])
   end
 
-  defp handle_routing_key(socket, "connect", %{"status" => "connected", "message" => message}, state) do
+  defp handle_routing_key(
+         socket,
+         "connect",
+         %{"status" => "connected", "message" => message},
+         state
+       ) do
     new_state = %{state | socket: socket, connected: true, status: "connected", message: message}
     broadcast(new_state)
     Logger.info("Connection established successfully: #{message}")
     {:noreply, new_state}
   end
 
-  defp handle_routing_key(_socket, "connect", %{"status" => "error", "message" => error_message}, state) do
+  defp handle_routing_key(
+         _socket,
+         "connect",
+         %{"status" => "error", "message" => error_message},
+         state
+       ) do
     new_state = %{state | connected: false, status: "error", message: error_message}
     broadcast(new_state)
     Logger.error("Error during connection: #{error_message}")
@@ -190,6 +214,7 @@ defmodule Scada.PythonPort do
       "connection_status",
       combined_result
     )
+
     Logger.info("Broadcasting connection status: #{inspect(combined_result)}")
   end
 end
