@@ -13,7 +13,7 @@ defmodule Scada.Application do
       {Phoenix.PubSub, name: Scada.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: Scada.Finch},
-      {Scada.PythonPort, []},
+      Supervisor.child_spec({Scada.PythonPort, []}, restart: :permanent),
       # Start a worker by calling: Scada.Worker.start_link(arg)
       # {Scada.Worker, arg},
       # Start to serve requests, typically the last entry

@@ -4,8 +4,23 @@ import pyads
 import logging
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+log_file = "logs/ads_service.log"  # Specify the file to save logs
+logging.basicConfig(
+    level=logging.INFO, 
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
+# Create a file handler for logging to a file
+file_handler = logging.FileHandler(log_file)
+file_handler.setLevel(logging.INFO)
+file_formatter = logging.Formatter(
+    '%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d %(message)s'
+)
+file_handler.setFormatter(file_formatter)
+
+# Add the file handler to the logger
 logger = logging.getLogger(__name__)
+logger.addHandler(file_handler)
 
 async def handle_client(reader, writer):
     async def send_response(response):
@@ -17,7 +32,7 @@ async def handle_client(reader, writer):
         except Exception as e:
             logger.error(f"Failed to send response: {str(e)}")
 
-    plc = None  # Ensure plc is initialized
+    # plc = None  # Ensure plc is initialized
 
     try:
         # Read initial configuration from the client

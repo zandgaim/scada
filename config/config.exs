@@ -50,9 +50,20 @@ config :tailwind,
   ]
 
 # Configures Elixir's Logger
+config :logger,
+  backends: [:console, {LoggerFileBackend, :file_log}]
+
+# Configure the console logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
+
+# Configure the file logger
+config :logger, :file_log,
+  path: "logs/app.log",
+  level: :info,
+  format: "$time $metadata[$level] $message\n",
+  metadata: [:request_id, :file, :line]
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
