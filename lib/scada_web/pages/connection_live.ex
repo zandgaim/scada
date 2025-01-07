@@ -56,13 +56,19 @@ defmodule ScadaWeb.Pages.ConnectionLive do
         tcp_status={@tcp_status}
         tcp_message={@tcp_message}
       />
-
+      
     <!-- Main Content -->
       <div class="w-full max-w-screen-xl mt-16 bg-white rounded-lg shadow-md p-6 text-center">
         <!-- Field Input Form -->
-        <.form for={@form_data} phx-submit="fetch_data" class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <.form
+          for={@form_data}
+          phx-submit="fetch_data"
+          class="flex flex-col sm:flex-row items-center justify-center gap-4"
+        >
           <div class="flex flex-col text-left w-full sm:w-auto">
-            <label for="field_name" class="block text-gray-700 font-medium mb-2">Enter Field Name:</label>
+            <label for="field_name" class="block text-gray-700 font-medium mb-2">
+              Enter Field Name:
+            </label>
             <input
               type="text"
               id="field_name"
@@ -73,12 +79,14 @@ defmodule ScadaWeb.Pages.ConnectionLive do
               class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
             />
           </div>
-          <button type="submit"
-                  class="bg-teal-700 hover:bg-teal-800 text-white font-semibold px-6 py-2 rounded-lg transition duration-300">
+          <button
+            type="submit"
+            class="bg-teal-700 hover:bg-teal-800 text-white font-semibold px-6 py-2 rounded-lg transition duration-300"
+          >
             Query
           </button>
         </.form>
-
+        
     <!-- Data Display Section -->
         <div class="mt-6">
           <%= if @data do %>
@@ -93,7 +101,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
             <p class="text-gray-500 italic">No data available</p>
           <% end %>
         </div>
-
+        
     <!-- Containers -->
         <div class="grid grid-cols-4 gap-6 relative mt-8">
           <%= for container <- @containers do %>
