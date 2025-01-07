@@ -179,14 +179,14 @@ defmodule Scada.PythonPort do
   defp handle_routing_key(_socket, "fetch_data", %{"message" => message}, state) do
     new_state = %{state | message: message, data: nil}
     broadcast(new_state)
-    Logger.warn("Fetch data response without data: #{message}")
+    Logger.error("Fetch data failing: #{message}")
     {:noreply, new_state}
   end
 
   defp handle_routing_key(_socket, _unknown_key, %{"message" => message}, state) do
     new_state = %{state | status: "error", message: "Unhandled routing key: #{message}"}
     broadcast(new_state)
-    Logger.error("Unhandled routing key: #{message}")
+    Logger.warn("Unhandled routing key: #{message}")
     {:noreply, new_state}
   end
 
