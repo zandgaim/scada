@@ -2,8 +2,9 @@ defmodule Scada.PythonPort do
   use GenServer
   require Logger
 
-  @tcp_host "127.0.0.1"
-  @tcp_port 8888
+  @tcp_host Application.compile_env(:scada, :tcp_host)
+  @tcp_port Application.compile_env(:scada, :tcp_port)
+
   @python_env Application.compile_env(:scada, :python_env)
   @ads_service Application.compile_env(:scada, :ads_service)
 

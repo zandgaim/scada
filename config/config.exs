@@ -12,7 +12,9 @@ config :scada,
   python_env: "venv/Scripts/python",
   ads_service: "priv/python/ads_service.py",
   ams_net_id: "192.168.56.1.1.1",
-  ams_port: 851
+  ams_port: 851,
+  tcp_host: "127.0.0.1",
+  tcp_port: 8888
 
 # Configures the endpoint
 config :scada, ScadaWeb.Endpoint,
