@@ -2,7 +2,6 @@ defmodule ScadaWeb.Pages.ConnectionLive do
   use Phoenix.LiveView
 
   import Phoenix.Component
-  import Phoenix.HTML.Form
 
   alias Phoenix.PubSub
   alias ScadaWeb.Components.{ConnectionStatusComponent, ContainerComponent}
@@ -24,6 +23,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
        containers: [
          %{
            title: "Weather Station",
+           status_indicator: %{active: false, label: "Online"},
            items: [
              {"Prędkość wiatru", "0m/s"},
              {"Śr. prędkość wiatru", "0.1m/s"},
@@ -33,6 +33,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
          },
          %{
            title: "PV",
+           status_indicator: %{active: true, label: "Operational"},
            items: [
              {"Napięcie", "760V"},
              {"Moc 1", "8kW"},
@@ -56,8 +57,8 @@ defmodule ScadaWeb.Pages.ConnectionLive do
         tcp_status={@tcp_status}
         tcp_message={@tcp_message}
       />
-      
-    <!-- Main Content -->
+
+      <!-- Main Content -->
       <div class="w-full max-w-screen-xl mt-16 bg-white rounded-lg shadow-md p-6 text-center">
         <!-- Field Input Form -->
         <.form
@@ -86,8 +87,8 @@ defmodule ScadaWeb.Pages.ConnectionLive do
             Query
           </button>
         </.form>
-        
-    <!-- Data Display Section -->
+
+        <!-- Data Display Section -->
         <div class="mt-6">
           <%= if @data do %>
             <ul class="space-y-2 text-gray-700">
@@ -101,14 +102,15 @@ defmodule ScadaWeb.Pages.ConnectionLive do
             <p class="text-gray-500 italic">No data available</p>
           <% end %>
         </div>
-        
-    <!-- Containers -->
+
+        <!-- Containers -->
         <div class="grid grid-cols-4 gap-6 relative mt-8">
           <%= for container <- @containers do %>
             <.live_component
               module={ContainerComponent}
               id={container.title |> String.downcase() |> String.replace(" ", "_")}
               title={container.title}
+              status_indicator={container.status_indicator}
               items={container.items}
             />
           <% end %>
