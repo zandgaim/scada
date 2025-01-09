@@ -9,7 +9,14 @@ defmodule Scada.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      releases: [
+        scada: [
+          include_erts: true,     # Bundles the Erlang runtime
+          include_executables_for: [:windows],   # Choose platform (e.g., :unix or :windows)
+          steps: [:assemble, :tar]  # Build steps: assemble app, then package it
+        ]
+      ]
     ]
   end
 
