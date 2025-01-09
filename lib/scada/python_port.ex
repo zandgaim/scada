@@ -42,11 +42,11 @@ defmodule Scada.PythonPort do
       {:ok, socket} ->
         connect_to_ads(socket, %{command: "connect"})
         new_state = %{state | socket: socket, tcp_status: "Established"}
-        Logger.info("TCP connection established to #{@tcp_host}:#{@tcp_port}")
+        Logger.info("TCP: connection established to #{@tcp_host}:#{@tcp_port}")
         {:noreply, new_state}
 
       {:error, reason} ->
-        Logger.error("Failed to connect, reason: #{inspect(reason)}")
+        Logger.error("TCP: failed to connect, reason: #{inspect(reason)}")
         connect()
         {:noreply, state}
     end
@@ -176,7 +176,7 @@ defmodule Scada.PythonPort do
 
   defp start_python_script do
     spawn(fn ->
-      System.cmd("py", [@ads_service])
+      System.cmd("python", [@ads_service])
       Logger.info("Python script started for ADS service")
     end)
   end

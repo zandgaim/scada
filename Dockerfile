@@ -17,17 +17,17 @@ WORKDIR /app
 # Install Elixir dependencies
 COPY mix.exs mix.lock ./ 
 RUN mix local.hex --force && mix local.rebar --force
-RUN mix deps.get --only prod
+RUN mix deps.get --only dev
 
 # Copy the Phoenix application files
 COPY . .
 
 # Install dependencies for the Phoenix app in production mode
-RUN MIX_ENV=prod mix deps.get
-RUN MIX_ENV=prod mix compile
+RUN MIX_ENV=dev mix deps.get
+RUN MIX_ENV=dev mix compile
 
 # Build assets for Phoenix
-RUN MIX_ENV=prod mix phx.digest
+RUN MIX_ENV=dev mix phx.digest
 
 # Set up the Python virtual environment
 WORKDIR /app/priv/python
