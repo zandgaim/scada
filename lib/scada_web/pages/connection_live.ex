@@ -57,8 +57,8 @@ defmodule ScadaWeb.Pages.ConnectionLive do
         tcp_status={@tcp_status}
         tcp_message={@tcp_message}
       />
-
-      <!-- Main Content -->
+      
+    <!-- Main Content -->
       <div class="w-full max-w-screen-xl mt-16 bg-white rounded-lg shadow-md p-6 text-center">
         <!-- Field Input Form -->
         <.form
@@ -87,8 +87,8 @@ defmodule ScadaWeb.Pages.ConnectionLive do
             Query
           </button>
         </.form>
-
-        <!-- Data Display Section -->
+        
+    <!-- Data Display Section -->
         <div class="mt-6">
           <%= if @data do %>
             <ul class="space-y-2 text-gray-700">
@@ -102,8 +102,8 @@ defmodule ScadaWeb.Pages.ConnectionLive do
             <p class="text-gray-500 italic">No data available</p>
           <% end %>
         </div>
-
-        <!-- Containers -->
+        
+    <!-- Containers -->
         <div class="grid grid-cols-4 gap-6 relative mt-8">
           <%= for container <- @containers do %>
             <.live_component

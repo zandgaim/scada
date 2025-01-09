@@ -13,10 +13,12 @@ config :scada, ScadaWeb.Endpoint,
   # ],
   # Disable code reloader and debugging in production
   code_reloader: false,
-  check_origin: false,  # Consider enabling proper origin checks in production
+  # Consider enabling proper origin checks in production
+  check_origin: false,
   debug_errors: false,
   server: true,
-  secret_key_base: System.get_env("SECRET_KEY_BASE"),  # Always use environment variables in production
+  # Always use environment variables in production
+  secret_key_base: System.get_env("SECRET_KEY_BASE"),
 
   # Use a cache for better performance in production
   cache_static_manifest: "priv/static/cache_manifest.json",
@@ -24,28 +26,34 @@ config :scada, ScadaWeb.Endpoint,
   # Serve static files from priv/static
 
   # Enable watchers for compiling assets in production (e.g., esbuild, tailwind)
-  watchers: [
-  ]
+  watchers: []
 
 # Disable live_reload for production as it is for development
 config :scada, ScadaWeb.Endpoint, live_reload: []
 
 # Enable production-specific features
-config :scada, dev_routes: false  # Disable development routes (e.g., dashboard, mailbox) in production
+# Disable development routes (e.g., dashboard, mailbox) in production
+config :scada, dev_routes: false
 
 # Configure logging for production (minimal logs)
 config :logger, :console,
   format: "[$level] $message\n",
-  metadata: [:request_id]  # Only include minimal metadata in production logs
+  # Only include minimal metadata in production logs
+  metadata: [:request_id]
 
 # Production-specific settings for Phoenix
-config :phoenix, :stacktrace_depth, 5  # Limit stacktrace depth in production (higher values are costly)
-config :phoenix, :plug_init_mode, :compile  # Initialize plugs at compile time for faster execution
+# Limit stacktrace depth in production (higher values are costly)
+config :phoenix, :stacktrace_depth, 5
+# Initialize plugs at compile time for faster execution
+config :phoenix, :plug_init_mode, :compile
 
 # Disable expensive checks in Phoenix LiveView
 config :phoenix_live_view,
-  debug_heex_annotations: false,  # Disable HEEx debug annotations in production
-  enable_expensive_runtime_checks: false  # Disable expensive runtime checks in production
+  # Disable HEEx debug annotations in production
+  debug_heex_annotations: false,
+  # Disable expensive runtime checks in production
+  enable_expensive_runtime_checks: false
 
 # Configure the production email system (if applicable, e.g., Swoosh)
-config :swoosh, :api_client, true  # Enable the email client for production adapters
+# Enable the email client for production adapters
+config :swoosh, :api_client, true

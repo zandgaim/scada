@@ -12,9 +12,12 @@ defmodule Scada.MixProject do
       deps: deps(),
       releases: [
         scada: [
-          include_erts: true,     # Bundles the Erlang runtime
-          include_executables_for: [:windows],   # Choose platform (e.g., :unix or :windows)
-          steps: [:assemble, :tar]  # Build steps: assemble app, then package it
+          # Bundles the Erlang runtime
+          include_erts: true,
+          # Choose platform (e.g., :unix or :windows)
+          include_executables_for: [:windows],
+          # Build steps: assemble app, then package it
+          steps: [:assemble, :tar]
         ]
       ]
     ]

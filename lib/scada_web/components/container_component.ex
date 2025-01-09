@@ -12,15 +12,18 @@ defmodule ScadaWeb.Components.ContainerComponent do
         <h3 class="text-lg font-semibold truncate">{@title}</h3>
         <%= if @status_indicator do %>
           <div class="flex items-center">
-            <div
-              class={if @status_indicator[:active], do: "w-3 h-3 bg-green-500 rounded-full", else: "w-3 h-3 bg-red-500 rounded-full"}>
+            <div class={
+              if @status_indicator[:active],
+                do: "w-3 h-3 bg-green-500 rounded-full",
+                else: "w-3 h-3 bg-red-500 rounded-full"
+            }>
             </div>
             <span class="ml-2 text-sm text-gray-300">{@status_indicator[:label]}</span>
           </div>
         <% end %>
       </div>
-
-      <!-- Grid of Key-Value Pairs -->
+      
+    <!-- Grid of Key-Value Pairs -->
       <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
         <%= for {label, value} <- @items do %>
           <div class="col-span-1 text-gray-400 truncate">{label}</div>
