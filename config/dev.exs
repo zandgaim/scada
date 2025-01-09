@@ -14,6 +14,7 @@ config :scada, ScadaWeb.Endpoint,
   code_reloader: true,
   debug_errors: true,
   secret_key_base: "BZGqGRenEktydP9ZZvazXnLOigVZ/5R72eU5mafHBB9F+T7nr6oOZeU5uM74WMEi",
+  server: true,
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:scada, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:scada, ~w(--watch)]}

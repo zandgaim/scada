@@ -22,12 +22,9 @@ config :scada, ScadaWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json",
 
   # Serve static files from priv/static
-  static_url: [path: "/assets"],
 
   # Enable watchers for compiling assets in production (e.g., esbuild, tailwind)
   watchers: [
-    esbuild: {Esbuild, :install_and_run, [:scada, ~w(--sourcemap=false --minify)]},
-    tailwind: {Tailwind, :install_and_run, [:scada, ~w(--minify)]}
   ]
 
 # Disable live_reload for production as it is for development
