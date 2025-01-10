@@ -21,28 +21,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
        last_status: nil,
        last_message: nil,
        form_data: %{"field_name" => ""},
-       containers: [
-         %{
-           title: "Weather Station",
-           status_indicator: %{active: false, label: "Online"},
-           items: [
-             {"Prędkość wiatru", "0m/s"},
-             {"Śr. prędkość wiatru", "0.1m/s"},
-             {"Kierunek wiatru", "0°"},
-             {"Temperatura", "25.3°C"}
-           ]
-         },
-         %{
-           title: "PV",
-           status_indicator: %{active: true, label: "Operational"},
-           items: [
-             {"Napięcie", "760V"},
-             {"Moc 1", "8kW"},
-             {"Moc 2", "7kW"},
-             {"Moc 3", "0kW"}
-           ]
-         }
-       ]
+       containers: get_containers()
      )}
   end
 
@@ -164,5 +143,9 @@ defmodule ScadaWeb.Pages.ConnectionLive do
 
   defp get_state do
     Scada.PythonPort.get_state()
+  end
+
+  defp get_containers do
+    Scada.Containers.get_containers()
   end
 end
