@@ -84,7 +84,15 @@ defmodule Scada.MixProject do
         "tailwind scada --minify",
         "esbuild scada --minify",
         "phx.digest"
-      ]
+      ],
+      "release.clean": ["run delete_release", "release"],
+      deploy: ["setup", "assets.deploy", "release.clean"]
     ]
+  end
+
+  # Function to delete the release folder
+  defp delete_release do
+    # Using Elixir's File.rm_rf/1 to remove the release directory
+    File.rm_rf("_build/prod/rel/scada")
   end
 end

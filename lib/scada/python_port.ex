@@ -29,6 +29,7 @@ defmodule Scada.PythonPort do
       tcp_message: ""
     }
 
+    broadcast(state)
     connect()
     {:ok, state}
   end
@@ -108,6 +109,18 @@ defmodule Scada.PythonPort do
     {:reply, %{"status" => "error", "message" => "Not connected to Python service"}, state}
   end
 
+  def handle_call(:get_state, _from, state) do
+    attrs = %{
+      status: state.status,
+      message: state.message,
+      data: state.data,
+      tcp_status: state.tcp_status,
+      tcp_message: state.tcp_message
+    }
+
+    {:reply, attrs, state}
+  end
+
   def fetch_data(fields) do
     GenServer.call(__MODULE__, {:fetch_data, fields})
   end
@@ -121,8 +134,13 @@ defmodule Scada.PythonPort do
       |> Map.merge(request)
       |> Jason.encode!()
 
-    :gen_tcp.send(socket, encoded_request <> "\n")
-    Logger.info("Request sent to ADS: #{inspect(encoded_request)}")
+    case :gen_tcp.send(socket, encoded_request <> "\n") do
+      :ok ->
+        Logger.info("Request sent to ADS: #{inspect(encoded_request)}")
+
+      {:error, reason} ->
+        Logger.error("Failed to send ADS request: #{inspect(reason)}")
+    end
   end
 
   defp handle_routing_key(
@@ -182,7 +200,7 @@ defmodule Scada.PythonPort do
   end
 
   defp broadcast(state) do
-    combined_result = %{
+    attrs = %{
       status: state.status,
       message: state.message,
       data: state.data,
@@ -193,9 +211,13 @@ defmodule Scada.PythonPort do
     Phoenix.PubSub.broadcast(
       Scada.PubSub,
       "connection_status",
-      combined_result
+      attrs
     )
 
-    Logger.info("Broadcasting connection status: #{inspect(combined_result)}")
+    Logger.info("Broadcasting connection status: #{inspect(attrs)}")
+  end
+
+  def get_state do
+    GenServer.call(__MODULE__, :get_state)
   end
 end

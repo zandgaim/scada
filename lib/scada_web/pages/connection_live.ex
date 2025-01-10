@@ -8,17 +8,18 @@ defmodule ScadaWeb.Pages.ConnectionLive do
 
   def mount(_params, _session, socket) do
     PubSub.subscribe(Scada.PubSub, "connection_status")
+    state = get_state()
 
     {:ok,
      assign(socket,
-       status: "waiting",
-       message: "Not connected to machine",
+       status: state[:status] || "waiting",
+       message: state[:message] || "Not connected to machine",
+       tcp_status: state[:tcp_status] || "Not established",
+       tcp_message: state[:tcp_message] || "",
+       data: state[:data] || nil,
        field_name: "",
        last_status: nil,
        last_message: nil,
-       data: nil,
-       tcp_status: "Not established",
-       tcp_message: "",
        form_data: %{"field_name" => ""},
        containers: [
          %{
@@ -159,5 +160,9 @@ defmodule ScadaWeb.Pages.ConnectionLive do
        tcp_status: tcp_status,
        tcp_message: tcp_message
      )}
+  end
+
+  defp get_state do
+    Scada.PythonPort.get_state()
   end
 end
