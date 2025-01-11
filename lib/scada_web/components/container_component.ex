@@ -13,12 +13,12 @@ defmodule ScadaWeb.Components.ContainerComponent do
         <%= if @status_indicator do %>
           <div class="flex items-center">
             <div class={
-              if @status_indicator[:active],
+              if @status_indicator == "Operational",
                 do: "w-3 h-3 bg-green-500 rounded-full",
                 else: "w-3 h-3 bg-red-500 rounded-full"
             }>
             </div>
-            <span class="ml-2 text-sm text-gray-300">{@status_indicator[:label]}</span>
+            <span class="ml-2 text-sm text-gray-300">{@status_indicator}</span>
           </div>
         <% end %>
       </div>

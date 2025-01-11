@@ -146,6 +146,6 @@ defmodule ScadaWeb.Pages.ConnectionLive do
   end
 
   defp get_containers do
-    Scada.Containers.get_containers()
+    Scada.ContainersData.get_containers()
   end
 end

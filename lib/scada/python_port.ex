@@ -4,13 +4,19 @@ defmodule Scada.PythonPort do
 
   @tcp_host Application.compile_env(:scada, :tcp_host)
   @tcp_port Application.compile_env(:scada, :tcp_port)
-
   @ads_service Application.compile_env(:scada, :ads_service)
-
   @ams_net_id Application.compile_env(:scada, :ams_net_id)
   @ams_port Application.compile_env(:scada, :ams_port)
-
   @retry_interval 10_000
+  @fetch_interval 2_000
+
+  def get_state do
+    GenServer.call(__MODULE__, :get_state)
+  end
+
+  def fetch_data(fields) do
+    GenServer.call(__MODULE__, {:fetch_data, fields})
+  end
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -39,7 +45,12 @@ defmodule Scada.PythonPort do
   end
 
   def handle_info(:connect, %{connected: false} = state) do
-    case :gen_tcp.connect(String.to_charlist(@tcp_host), @tcp_port, [:binary, active: true]) do
+    case :gen_tcp.connect(String.to_charlist(@tcp_host), @tcp_port, [
+           :binary,
+           packet: :line,
+           active: true,
+           reuseaddr: true
+         ]) do
       {:ok, socket} ->
         connect_to_ads(socket, %{command: "connect"})
         new_state = %{state | socket: socket, tcp_status: "Established"}
@@ -53,10 +64,9 @@ defmodule Scada.PythonPort do
     end
   end
 
-  def handle_info({:tcp, socket, data}, state) do
+  def handle_info({:tcp, socket, data}, %{socket: socket} = state) do
     case Jason.decode(data) do
       {:ok, %{"routing_key" => routing_key} = response} ->
-        Logger.info("Received data: #{inspect(response)}")
         handle_routing_key(socket, routing_key, response, state)
 
       {:error, _reason} ->
@@ -91,17 +101,19 @@ defmodule Scada.PythonPort do
         tcp_message: "TCP error: #{inspect(reason)}"
     }
 
-    broadcast(new_state)
     connect()
     Logger.error("TCP error encountered: #{inspect(reason)}")
     {:noreply, new_state}
+  end
+
+  def handle_call({:fetch_data, _data}, _from, %{connected: false} = state) do
+    {:reply, %{"status" => "error", "message" => "Not connected to Python service"}, state}
   end
 
   def handle_call({:fetch_data, data}, _from, %{connected: true, socket: socket} = state) do
     request = Jason.encode!(%{command: "fetch_data", data: data})
     :gen_tcp.send(socket, request <> "\n")
 
-    Logger.info("Fetch data request sent: #{inspect(data)}")
     {:reply, %{"status" => "fetching", "message" => "Request sent to fetch"}, state}
   end
 
@@ -119,10 +131,6 @@ defmodule Scada.PythonPort do
     }
 
     {:reply, attrs, state}
-  end
-
-  def fetch_data(fields) do
-    GenServer.call(__MODULE__, {:fetch_data, fields})
   end
 
   defp connect_to_ads(socket, request) do
@@ -144,12 +152,12 @@ defmodule Scada.PythonPort do
   end
 
   defp handle_routing_key(
-         socket,
+         _socket,
          "connect",
          %{"status" => "connected", "message" => message},
          state
        ) do
-    new_state = %{state | socket: socket, connected: true, status: "connected", message: message}
+    new_state = %{state | connected: true, status: "connected", message: message}
     broadcast(new_state)
     Logger.info("Connection established successfully: #{message}")
     {:noreply, new_state}
@@ -169,6 +177,7 @@ defmodule Scada.PythonPort do
 
   defp handle_routing_key(_socket, "fetch_data", %{"message" => message, "data" => data}, state) do
     new_state = %{state | message: message, data: data}
+    Scada.DataManager.store_data(data)
     broadcast(new_state)
     Logger.info("Fetch data response: #{message}, data: #{inspect(data)}")
     {:noreply, new_state}
@@ -213,11 +222,5 @@ defmodule Scada.PythonPort do
       "connection_status",
       attrs
     )
-
-    Logger.info("Broadcasting connection status: #{inspect(attrs)}")
-  end
-
-  def get_state do
-    GenServer.call(__MODULE__, :get_state)
   end
 end

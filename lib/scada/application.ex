@@ -14,6 +14,7 @@ defmodule Scada.Application do
       # Start the Finch HTTP client for sending emails
       {Finch, name: Scada.Finch},
       Supervisor.child_spec({Scada.PythonPort, []}, restart: :permanent),
+      Supervisor.child_spec({Scada.DataManager, []}, restart: :permanent),
       # Start a worker by calling: Scada.Worker.start_link(arg)
       # {Scada.Worker, arg},
       # Start to serve requests, typically the last entry

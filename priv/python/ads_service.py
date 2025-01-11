@@ -28,7 +28,6 @@ async def handle_client(reader, writer):
             message = json.dumps(response).encode('utf-8') + b'\n'
             writer.write(message)
             await writer.drain()
-            logger.info(f"Sent response: {response}")
         except Exception as e:
             logger.error(f"Failed to send response: {str(e)}")
 
@@ -147,7 +146,7 @@ def fetch_plc_data(plc, var_list):
             "routing_key": "fetch_data",
             "status": "connected",
             "message": "Data fetched successfully",
-            "data": result
+            "data": result,
         }
 
     except Exception as e:
