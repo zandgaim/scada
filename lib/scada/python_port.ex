@@ -76,7 +76,7 @@ defmodule Scada.PythonPort do
     end
   end
 
-  def handle_info({:tcp, _socket, data}, state) do
+  def handle_info({:tcp, _socket, _data}, state) do
     Logger.warning("Received TCP message from unknown socket")
     {:noreply, state}
   end
