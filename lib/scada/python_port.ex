@@ -199,7 +199,6 @@ defmodule Scada.PythonPort do
         state
         | connected: false,
           status: "Not connected",
-          message: message,
           data: nil
       }
 
@@ -207,7 +206,7 @@ defmodule Scada.PythonPort do
       broadcast(new_state)
       {:noreply, new_state}
     else
-      new_state = %{state | message: message, data: nil}
+      new_state = %{state | data: nil}
       broadcast(new_state)
       {:noreply, new_state}
     end

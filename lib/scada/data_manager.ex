@@ -2,8 +2,7 @@ defmodule Scada.DataManager do
   use GenServer
   require Logger
 
-  @broadcast_interval 2_000
-  @fetch_interval 2_500
+  @default_interval 2_000
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -13,9 +12,15 @@ defmodule Scada.DataManager do
     GenServer.cast(__MODULE__, {:store_data, data})
   end
 
+  def update_interval(interval) do
+    IO.puts("ACHTUNG update_interval = #{interval} s")
+    GenServer.cast(__MODULE__, {:update_interval, interval * 1000})
+  end
+
   def init(:ok) do
-    state = %{data: initial_state()}
-    schedule_fetch()
+    state = %{data: initial_state(), interval: @default_interval}
+    schedule_fetch(state.interval)
+    schedule_broadcast(state.interval)
     {:ok, state}
   end
 
@@ -27,8 +32,8 @@ defmodule Scada.DataManager do
       |> Scada.PythonPort.fetch_data()
     end)
 
-    schedule_fetch()
-    schedule_broadcast()
+    schedule_fetch(state.interval)
+    schedule_broadcast(state.interval)
 
     {:noreply, state}
   end
@@ -45,12 +50,18 @@ defmodule Scada.DataManager do
     {:noreply, new_state}
   end
 
-  defp schedule_fetch do
-    Process.send_after(self(), :fetch_data, @fetch_interval)
+  def handle_cast({:update_interval, interval}, state) do
+    new_state = %{state | interval: interval}
+
+    {:noreply, new_state}
   end
 
-  defp schedule_broadcast do
-    Process.send_after(self(), :broadcast_data, @broadcast_interval)
+  defp schedule_fetch(interval) do
+    Process.send_after(self(), :fetch_data, interval)
+  end
+
+  defp schedule_broadcast(interval) do
+    Process.send_after(self(), :broadcast_data, interval)
   end
 
   defp broadcast_data(data) do

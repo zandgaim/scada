@@ -21,72 +21,87 @@ defmodule ScadaWeb.Pages.ConnectionLive do
        last_status: nil,
        last_message: nil,
        form_data: %{"field_name" => ""},
-       containers: get_containers()
+       containers: get_containers(),
+       fetch_interval: "2"
      )}
   end
 
   def render(assigns) do
     ~H"""
-    <div id="connection-status" class="flex flex-col items-center p-4 bg-gray-100 min-h-screen">
-      <!-- Connection Status -->
-      <.live_component
-        module={ConnectionStatusComponent}
-        id="connection_status"
-        status={@status}
-        message={@message}
-        tcp_status={@tcp_status}
-        tcp_message={@tcp_message}
-      />
+    <div id="connection-status" class="flex flex-col min-h-screen bg-gray-100">
+      <!-- Header -->
+      <header class="w-full bg-teal-700 text-white p-4 flex justify-between items-center shadow-md">
+        <h1 class="text-xl font-bold">SCADA Web</h1>
 
-    <!-- Main Content -->
-      <div class="w-full max-w-screen-xl mt-16 bg-white rounded-lg shadow-md p-6 text-center">
-        <!-- Field Input Form -->
-        <.form
-          for={@form_data}
-          phx-submit="fetch_data"
-          class="flex flex-col sm:flex-row items-center justify-center gap-4"
-        >
-          <div class="flex flex-col text-left w-full sm:w-auto">
-            <label for="field_name" class="block text-gray-700 font-medium mb-2">
-              Enter Field Name:
-            </label>
+        <div class="flex items-center space-x-3">
+          <label for="fetch_interval" class="text-sm font-medium">Fetch Interval:</label>
+          <form phx-change="update_interval">
+            <div class="relative">
+              <select
+                id="fetch_interval"
+                name="fetch_interval"
+                class="bg-teal-600 text-white rounded-md pl-3 pr-8 py-1 border border-teal-500 focus:outline-none focus:ring-2 focus:ring-white focus:border-white appearance-none"
+              >
+                <option value="1" selected={@fetch_interval == "1"}>1s</option>
 
-            <input
-              type="text"
-              id="field_name"
-              name="field_name"
-              value={@form_data["field_name"]}
-              placeholder="e.g., field1, field2"
-              phx-change="validate_field"
-              class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
-            />
-          </div>
+                <option value="2" selected={@fetch_interval == "2"}>2s</option>
 
-          <button
-            type="submit"
-            class="bg-teal-700 hover:bg-teal-800 text-white font-semibold px-6 py-2 rounded-lg transition duration-300"
-          >
-            Query
-          </button>
-        </.form>
-
-    <!-- Data Display Section -->
-        <div class="mt-6">
-          <%= if @data do %>
-            <ul class="space-y-2 text-gray-700">
-              <%= for {key, value} <- @data do %>
-                <li class="flex justify-between border-b pb-1">
-                  <span class="font-semibold">{key}:</span> <span>{value}</span>
-                </li>
-              <% end %>
-            </ul>
-          <% else %>
-            <p class="text-gray-500 italic">No data available</p>
-          <% end %>
+                <option value="5" selected={@fetch_interval == "5"}>5s</option>
+              </select>
+            </div>
+          </form>
         </div>
-
+      </header>
+      
+    <!-- Main Content -->
+      <div class="flex flex-col items-center mt-4 px-6">
+        <!-- Status Section -->
+        <div class="bg-white w-full max-w-screen-xl p-6 rounded-lg shadow-md text-center">
+          <.live_component
+            module={ConnectionStatusComponent}
+            id="connection_status"
+            status={@status}
+            message={@message}
+            tcp_status={@tcp_status}
+            tcp_message={@tcp_message}
+          />
+        </div>
+        
+    <!-- Form Section -->
+        <div class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
+          <.form
+            for={@form_data}
+            phx-submit="fetch_data"
+            class="flex flex-col sm:flex-row items-center justify-center gap-4"
+          >
+            <!-- Field Name Input -->
+            <div class="flex flex-col text-left w-full sm:w-auto">
+              <label for="field_name" class="block text-gray-700 font-medium mb-2">
+                Enter Field Name:
+              </label>
+              <input
+                type="text"
+                id="field_name"
+                name="field_name"
+                value={@form_data["field_name"]}
+                placeholder="e.g., field1, field2"
+                phx-change="validate_field"
+                class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
+              />
+            </div>
+            
+    <!-- Query Button -->
+            <button
+              type="submit"
+              class="bg-teal-700 hover:bg-teal-800 text-white font-semibold px-6 py-2 rounded-lg transition duration-300"
+            >
+              Query
+            </button>
+          </.form>
+        </div>
+        
     <!-- Containers -->
-        <div class="grid grid-cols-4 gap-6 relative mt-8">
+        <div class="grid grid-cols-4 gap-6 mt-6">
           <%= for container <- @containers do %>
             <.live_component
               module={ContainerComponent}
@@ -104,6 +119,14 @@ defmodule ScadaWeb.Pages.ConnectionLive do
 
   def handle_event("validate_field", %{"field_name" => field_name}, socket) do
     {:noreply, assign(socket, field_name: field_name)}
+  end
+
+  def handle_event("update_interval", %{"fetch_interval" => fetch_interval}, socket) do
+    fetch_interval
+    |> String.to_integer()
+    |> Scada.DataManager.update_interval()
+
+    {:noreply, assign(socket, fetch_interval: fetch_interval)}
   end
 
   def handle_event("fetch_data", %{"field_name" => field_name}, socket) do
