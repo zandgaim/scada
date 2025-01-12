@@ -2,7 +2,8 @@ defmodule Scada.DataManager do
   use GenServer
   require Logger
 
-  @fetch_interval 5_000
+  @broadcast_interval 2_000
+  @fetch_interval 2_500
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -14,36 +15,46 @@ defmodule Scada.DataManager do
 
   def init(:ok) do
     state = %{data: initial_state()}
-
-    schedule_update()
+    schedule_fetch()
     {:ok, state}
   end
 
-  def handle_info(:update_data, state) do
-    fetched_data =
-      get_parameter_map()
-      |> Enum.flat_map(fn {_key, params} -> Map.values(params) end)
+  def handle_info(:fetch_data, state) do
+    get_parameter_map()
+    |> Enum.each(fn {_key, params} ->
+      params
+      |> Map.values()
       |> Scada.PythonPort.fetch_data()
+    end)
 
-    Logger.debug("Fetched data: #{inspect(fetched_data)}")
+    schedule_fetch()
+    schedule_broadcast()
 
-    schedule_update()
+    {:noreply, state}
+  end
+
+  def handle_info(:broadcast_data, state) do
+    broadcast_data(state.data)
     {:noreply, state}
   end
 
   def handle_cast({:store_data, data}, state) do
-    Logger.debug("Data successfully stored: #{inspect(data)}")
-
     new_data = update_state_data(state.data, data)
-
     new_state = %{state | data: new_data}
-    Logger.debug("Updated state: #{inspect(new_state)}")
 
     {:noreply, new_state}
   end
 
-  defp schedule_update do
-    Process.send_after(self(), :update_data, @fetch_interval)
+  defp schedule_fetch do
+    Process.send_after(self(), :fetch_data, @fetch_interval)
+  end
+
+  defp schedule_broadcast do
+    Process.send_after(self(), :broadcast_data, @broadcast_interval)
+  end
+
+  defp broadcast_data(data) do
+    Phoenix.PubSub.broadcast(Scada.PubSub, "connection_status", {:update_containers, data})
   end
 
   def get_parameter_map do
@@ -53,7 +64,7 @@ defmodule Scada.DataManager do
         acc,
         container.title,
         container.items
-        |> Enum.into(%{}, fn {_label, key, _type} -> {key, key} end)
+        |> Enum.into(%{}, fn {_label, key, _type, _value} -> {key, key} end)
       )
     end)
   end
@@ -64,9 +75,10 @@ defmodule Scada.DataManager do
       %{
         title: title,
         status_indicator: status,
-        items: Enum.map(items, fn {label, key, type} ->
-          {label, key, type, nil}
-        end)
+        items:
+          Enum.map(items, fn {label, key, type, value} ->
+            {label, key, type, value}
+          end)
       }
     end)
   end
@@ -74,8 +86,8 @@ defmodule Scada.DataManager do
   defp update_state_data(existing_data, new_data) do
     Enum.map(existing_data, fn container ->
       updated_items =
-        Enum.map(container.items, fn {label, key, type, _value} ->
-          new_value = Map.get(new_data, key, nil)
+        Enum.map(container.items, fn {label, key, type, value} ->
+          new_value = Map.get(new_data, key, value)
           {label, key, type, new_value}
         end)
 

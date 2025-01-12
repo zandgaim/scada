@@ -12,7 +12,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
 
     {:ok,
      assign(socket,
-       status: state[:status] || "waiting",
+       status: state[:status],
        message: state[:message] || "Not connected to machine",
        tcp_status: state[:tcp_status] || "Not established",
        tcp_message: state[:tcp_message] || "",
@@ -37,7 +37,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
         tcp_status={@tcp_status}
         tcp_message={@tcp_message}
       />
-      
+
     <!-- Main Content -->
       <div class="w-full max-w-screen-xl mt-16 bg-white rounded-lg shadow-md p-6 text-center">
         <!-- Field Input Form -->
@@ -50,6 +50,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
             <label for="field_name" class="block text-gray-700 font-medium mb-2">
               Enter Field Name:
             </label>
+
             <input
               type="text"
               id="field_name"
@@ -60,6 +61,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
               class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
             />
           </div>
+
           <button
             type="submit"
             class="bg-teal-700 hover:bg-teal-800 text-white font-semibold px-6 py-2 rounded-lg transition duration-300"
@@ -67,7 +69,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
             Query
           </button>
         </.form>
-        
+
     <!-- Data Display Section -->
         <div class="mt-6">
           <%= if @data do %>
@@ -82,7 +84,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
             <p class="text-gray-500 italic">No data available</p>
           <% end %>
         </div>
-        
+
     <!-- Containers -->
         <div class="grid grid-cols-4 gap-6 relative mt-8">
           <%= for container <- @containers do %>
@@ -119,25 +121,20 @@ defmodule ScadaWeb.Pages.ConnectionLive do
     end
   end
 
-  def handle_info(
-        %{
-          :status => status,
-          :message => message,
-          :data => data,
-          :tcp_status => tcp_status,
-          :tcp_message => tcp_message
-        },
-        socket
-      ) do
+  def handle_info({:update_containers, containers}, socket) do
+    {:noreply, assign(socket, containers: containers)}
+  end
+
+  def handle_info(state, socket) do
     {:noreply,
      assign(socket,
-       status: status,
-       message: message,
-       last_status: status,
-       last_message: message,
-       data: data,
-       tcp_status: tcp_status,
-       tcp_message: tcp_message
+       status: state.status,
+       message: state.message,
+       last_status: state.status,
+       last_message: state.message,
+       data: state.data,
+       tcp_status: state.tcp_status,
+       tcp_message: state.tcp_message
      )}
   end
 

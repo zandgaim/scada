@@ -25,9 +25,9 @@ defmodule ScadaWeb.Components.ContainerComponent do
       
     <!-- Grid of Key-Value Pairs -->
       <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-        <%= for {label, value} <- @items do %>
+        <%= for {label, _, symb, value} <- @items do %>
           <div class="col-span-1 text-gray-400 truncate">{label}</div>
-          <div class="col-span-1 text-right font-semibold truncate">{value}</div>
+          <div class="col-span-1 text-right font-semibold truncate">{value} {symb}</div>
         <% end %>
       </div>
     </div>

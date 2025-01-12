@@ -48,7 +48,7 @@ async def handle_client(reader, writer):
             })
             return
 
-        logger.info(f"Attempting to connect to PLC with AMS Net ID: {ams_net_id} and AMS Port: {ams_port}")
+        logger.info(f"Attempting to connect to PLC")
         plc, connect_response = connect_to_plc(ams_net_id, ams_port)
         await send_response(connect_response)
 
@@ -141,7 +141,6 @@ def fetch_plc_data(plc, var_list):
         logger.info(f"Fetching data for variables: {var_list}")
         result = plc.read_list_by_name(var_list)
 
-        logger.info("Data fetched successfully.")
         return {
             "routing_key": "fetch_data",
             "status": "connected",
@@ -150,10 +149,9 @@ def fetch_plc_data(plc, var_list):
         }
 
     except Exception as e:
-        logger.error(f"Failed to fetch data: {str(e)}")
         return {
             "routing_key": "fetch_data",
-            "message": f"Failed to fetch data: {str(e)}",
+            "message": f"Failed to fetch {var_list}: {str(e)}",
         }
 
 
