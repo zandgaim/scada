@@ -4,11 +4,11 @@ This project is a Supervisory Control and Data Acquisition (SCADA) system develo
 
 Features:
 
-Real-time data acquisition and processing
-Web-based user interface for monitoring and control
-Integration with the Python ADS library for communication with industrial equipment
-TCP-based connection between the Phoenix app and the Python process
-Docker support for easy deployment
+ * Real-time data acquisition and processing
+ * Web-based user interface for monitoring and control
+ * Integration with the Python ADS library for communication with industrial equipment
+ * TCP-based connection between the Phoenix app and the Python process
+ * Docker support for easy deployment
 # Setup
 
 First of all run script priv/scripts/setup_python_env.bat:
