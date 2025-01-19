@@ -13,7 +13,6 @@ defmodule Scada.DataManager do
   end
 
   def update_interval(interval) do
-    IO.puts("ACHTUNG update_interval = #{interval} s")
     GenServer.cast(__MODULE__, {:update_interval, interval * 1000})
   end
 
