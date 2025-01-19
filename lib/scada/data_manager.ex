@@ -38,7 +38,10 @@ defmodule Scada.DataManager do
   end
 
   def handle_info(:broadcast_data, state) do
-    broadcast_data(state.data)
+    state.data
+    |> data_to_map()
+    |> broadcast_data()
+
     {:noreply, state}
   end
 
@@ -102,6 +105,12 @@ defmodule Scada.DataManager do
         end)
 
       %{container | items: updated_items}
+    end)
+  end
+
+  defp data_to_map(data) do
+    Enum.reduce(data, %{}, fn %{title: title} = map, acc ->
+      Map.put(acc, title, Map.delete(map, :title))
     end)
   end
 end

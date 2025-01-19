@@ -32,43 +32,51 @@ defmodule ScadaWeb.Pages.ConnectionLive do
       <!-- Header -->
       <header class="w-full bg-teal-700 text-white p-4 flex justify-between items-center shadow-md">
         <h1 class="text-xl font-bold">SCADA Web</h1>
-
+        
         <div class="flex items-center space-x-3">
           <label for="fetch_interval" class="text-sm font-medium">Fetch Interval:</label>
           <form phx-change="update_interval">
-            <div class="relative">
-              <select
-                id="fetch_interval"
-                name="fetch_interval"
-                class="bg-teal-600 text-white rounded-md pl-3 pr-8 py-1 border border-teal-500 focus:outline-none focus:ring-2 focus:ring-white focus:border-white appearance-none"
-              >
-                <option value="1" selected={@fetch_interval == "1"}>1s</option>
-
-                <option value="2" selected={@fetch_interval == "2"}>2s</option>
-
-                <option value="5" selected={@fetch_interval == "5"}>5s</option>
-              </select>
-            </div>
+            <select
+              id="fetch_interval"
+              name="fetch_interval"
+              class="bg-teal-600 text-white rounded-md pl-3 pr-8 py-1 border border-teal-500 focus:outline-none focus:ring-2 focus:ring-white focus:border-white appearance-none"
+            >
+              <option value="1" selected={@fetch_interval == "1"}>1s</option>
+              
+              <option value="2" selected={@fetch_interval == "2"}>2s</option>
+              
+              <option value="5" selected={@fetch_interval == "5"}>5s</option>
+            </select>
           </form>
         </div>
       </header>
       
     <!-- Main Content -->
-      <div class="flex flex-col items-center mt-4 px-6">
+      <main class="flex flex-col items-center mt-4 px-6">
         <!-- Status Section -->
-        <div class="bg-white w-full max-w-screen-xl p-6 rounded-lg shadow-md text-center">
-          <.live_component
-            module={ConnectionStatusComponent}
-            id="connection_status"
-            status={@status}
-            message={@message}
-            tcp_status={@tcp_status}
-            tcp_message={@tcp_message}
-          />
-        </div>
+        <section class="bg-white w-full max-w-screen-xl p-6 rounded-lg shadow-md text-center">
+          <div class="flex flex-col items-center">
+            <div class="flex items-center space-x-4">
+              <div class={"rounded-full w-4 h-4 " <> status_color(@status)}></div>
+              
+              <h2 class="text-2xl font-semibold">Connection Status: {@status}</h2>
+            </div>
+            
+            <p class="text-lg text-gray-600 mt-2">{@message}</p>
+          </div>
+          
+    <!-- TCP Status and Message -->
+          <div class="mt-6 p-4 bg-gray-50 rounded-lg shadow-inner border-t">
+            <h3 class="text-md font-semibold text-teal-700">TCP Details</h3>
+            
+            <p class="text-sm text-gray-700 mt-1"><strong>Status:</strong> {@tcp_status}</p>
+            
+            <p class="text-sm text-gray-700"><strong>Message:</strong> {@tcp_message}</p>
+          </div>
+        </section>
         
     <!-- Form Section -->
-        <div class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
+        <%!-- <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
           <.form
             for={@form_data}
             phx-submit="fetch_data"
@@ -89,8 +97,8 @@ defmodule ScadaWeb.Pages.ConnectionLive do
                 class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
               />
             </div>
-            
-    <!-- Query Button -->
+
+            <!-- Query Button -->
             <button
               type="submit"
               class="bg-teal-700 hover:bg-teal-800 text-white font-semibold px-6 py-2 rounded-lg transition duration-300"
@@ -98,24 +106,18 @@ defmodule ScadaWeb.Pages.ConnectionLive do
               Query
             </button>
           </.form>
-        </div>
+        </section> --%>
         
     <!-- Containers -->
-        <div class="grid grid-cols-4 gap-6 mt-6">
-          <%= for container <- @containers do %>
-            <.live_component
-              module={ContainerComponent}
-              id={container.title |> String.downcase() |> String.replace(" ", "_")}
-              title={container.title}
-              status_indicator={container.status_indicator}
-              items={container.items}
-            />
-          <% end %>
-        </div>
-      </div>
+        <.live_component id="containers_main" module={ContainerComponent} containers={@containers} />
+      </main>
     </div>
     """
   end
+
+  defp status_color("Connected"), do: "bg-green-500"
+  defp status_color("Disconnected"), do: "bg-red-500"
+  defp status_color(_), do: "bg-yellow-500"
 
   def handle_event("validate_field", %{"field_name" => field_name}, socket) do
     {:noreply, assign(socket, field_name: field_name)}
@@ -167,5 +169,8 @@ defmodule ScadaWeb.Pages.ConnectionLive do
 
   defp get_containers do
     Scada.ContainersData.get_containers()
+    |> Enum.reduce(%{}, fn %{title: title} = map, acc ->
+      Map.put(acc, title, Map.delete(map, :title))
+    end)
   end
 end
