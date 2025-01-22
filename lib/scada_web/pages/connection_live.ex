@@ -28,11 +28,14 @@ defmodule ScadaWeb.Pages.ConnectionLive do
 
   def render(assigns) do
     ~H"""
-    <div id="connection-status" class="flex flex-col min-h-screen bg-gray-100">
+    <div
+      id="connection-status"
+      class="flex flex-col min-h-screen bg-gradient-to-b from-gray-600 to-gray-300"
+    >
       <!-- Header -->
       <header class="w-full bg-teal-700 text-white p-4 flex justify-between items-center shadow-md">
         <h1 class="text-xl font-bold">SCADA Web</h1>
-        
+
         <div class="flex items-center space-x-3">
           <label for="fetch_interval" class="text-sm font-medium">Fetch Interval:</label>
           <form phx-change="update_interval">
@@ -42,9 +45,9 @@ defmodule ScadaWeb.Pages.ConnectionLive do
               class="bg-teal-600 text-white rounded-md pl-3 pr-8 py-1 border border-teal-500 focus:outline-none focus:ring-2 focus:ring-white focus:border-white appearance-none"
             >
               <option value="1" selected={@fetch_interval == "1"}>1s</option>
-              
+
               <option value="2" selected={@fetch_interval == "2"}>2s</option>
-              
+
               <option value="5" selected={@fetch_interval == "5"}>5s</option>
             </select>
           </form>
@@ -58,19 +61,19 @@ defmodule ScadaWeb.Pages.ConnectionLive do
           <div class="flex flex-col items-center">
             <div class="flex items-center space-x-4">
               <div class={"rounded-full w-4 h-4 " <> status_color(@status)}></div>
-              
+
               <h2 class="text-2xl font-semibold">Connection Status: {@status}</h2>
             </div>
-            
+
             <p class="text-lg text-gray-600 mt-2">{@message}</p>
           </div>
           
     <!-- TCP Status and Message -->
           <div class="mt-6 p-4 bg-gray-50 rounded-lg shadow-inner border-t">
             <h3 class="text-md font-semibold text-teal-700">TCP Details</h3>
-            
+
             <p class="text-sm text-gray-700 mt-1"><strong>Status:</strong> {@tcp_status}</p>
-            
+
             <p class="text-sm text-gray-700"><strong>Message:</strong> {@tcp_message}</p>
           </div>
         </section>
