@@ -3,16 +3,30 @@ defmodule ScadaWeb.Components.ConnectionStatusComponent do
 
   def render(assigns) do
     ~H"""
-    <header class="w-full bg-teal-700 text-white text-center py-6 shadow-lg rounded-lg">
-      <h2 class="text-2xl font-semibold">Connection Status: {@status}</h2>
-      <p class="text-lg text-gray-300 mt-1">{@message}</p>
-      
-    <!-- TCP Status and Message Section -->
-      <div class="mt-4 p-4 bg-teal-800 rounded-lg shadow-md">
-        <p class="text-sm font-semibold text-teal-100">TCP Status:</p>
-        <p class="text-sm text-teal-200">{@tcp_status}</p>
+    <section class="bg-white w-full max-w-screen-xl p-6 rounded-lg shadow-md text-center">
+      <div class="flex flex-col items-center">
+        <div class="flex items-center space-x-4">
+          <div class={"rounded-full w-4 h-4 " <> status_color(@status)}></div>
+          
+          <h2 class="text-2xl font-semibold">Connection Status: {@status}</h2>
+        </div>
+        
+        <p class="text-lg text-gray-600 mt-2">{@message}</p>
       </div>
-    </header>
+      
+    <!-- TCP Status and Message -->
+      <div class="mt-6 p-4 bg-gray-50 rounded-lg shadow-inner border-t">
+        <h3 class="text-md font-semibold text-teal-700">TCP Details</h3>
+        
+        <p class="text-sm text-gray-700 mt-1"><strong>Status:</strong> {@tcp_status}</p>
+        
+        <p class="text-sm text-gray-700"><strong>Message:</strong> {@tcp_message}</p>
+      </div>
+    </section>
     """
   end
+
+  defp status_color("Connected"), do: "bg-green-500"
+  defp status_color("Disconnected"), do: "bg-red-500"
+  defp status_color(_), do: "bg-yellow-500"
 end
