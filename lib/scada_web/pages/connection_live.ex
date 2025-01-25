@@ -30,7 +30,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
     ~H"""
     <div
       id="connection-status"
-      class="flex flex-col min-h-screen bg-gradient-to-b from-gray-600 to-gray-300"
+      class="flex flex-col min-h-screen bg-gradient-to-b from-gray-400 to-gray-300"
     >
       <!-- Header -->
       <header class="w-full bg-teal-700 text-white p-4 flex justify-between items-center shadow-md">
@@ -66,6 +66,9 @@ defmodule ScadaWeb.Pages.ConnectionLive do
           tcp_message={@tcp_message}
         />
         
+    <!-- Containers -->
+        <.live_component id="containers_main" module={ContainerComponent} containers={@containers} />
+        
     <!-- Form Section -->
         <%!-- <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
           <.form
@@ -98,9 +101,6 @@ defmodule ScadaWeb.Pages.ConnectionLive do
             </button>
           </.form>
         </section> --%>
-        
-    <!-- Containers -->
-        <.live_component id="containers_main" module={ContainerComponent} containers={@containers} />
       </main>
     </div>
     """
