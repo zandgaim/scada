@@ -4,7 +4,6 @@ defmodule ScadaWeb.Pages.ConnectionLive do
   import Phoenix.Component
 
   alias Phoenix.PubSub
-  alias ScadaWeb.Components.{ConnectionStatusComponent, ContainerComponent}
 
   def mount(_params, _session, socket) do
     PubSub.subscribe(Scada.PubSub, "connection_status")
@@ -53,7 +52,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
           </form>
         </div>
       </header>
-      
+
     <!-- Main Content -->
       <main class="flex flex-col items-center mt-4 px-6">
         <!-- Status Section -->
@@ -67,7 +66,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
 
             <p class="text-lg text-gray-600 mt-2">{@message}</p>
           </div>
-          
+
     <!-- TCP Status and Message -->
           <div class="mt-6 p-4 bg-gray-50 rounded-lg shadow-inner border-t">
             <h3 class="text-md font-semibold text-teal-700">TCP Details</h3>
@@ -77,7 +76,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
             <p class="text-sm text-gray-700"><strong>Message:</strong> {@tcp_message}</p>
           </div>
         </section>
-        
+
     <!-- Form Section -->
         <%!-- <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
           <.form
@@ -110,7 +109,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
             </button>
           </.form>
         </section> --%>
-        
+
     <!-- Containers -->
         <.live_component id="containers_main" module={ContainerComponent} containers={@containers} />
       </main>

@@ -20,6 +20,16 @@ defmodule Scada.ContainersData do
         ]
       },
       %{
+        title: "AC Bus",
+        status_indicator: "Operational",
+        items: [
+          {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
+          {"Śr. prędkość wiatru", "Main.AvWindSpeed", "m/s", "N/A"},
+          {"Kierunek wiatru", "Main.WindDirection", "°", "N/A"},
+          {"Temperatura", "Main.Temperature", "°C", "N/A"}
+        ]
+      },
+      %{
         title: "PV",
         status_indicator: "Operational",
         items: [
@@ -50,7 +60,37 @@ defmodule Scada.ContainersData do
         ]
       },
       %{
-        title: "DC Converter",
+        title: "SCAP Battery",
+        status_indicator: "Operational",
+        items: [
+          {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
+          {"Śr. prędkość wiatru", "Main.AvWindSpeed", "m/s", "N/A"},
+          {"Kierunek wiatru", "Main.WindDirection", "°", "N/A"},
+          {"Temperatura", "Main.Temperature", "°C", "N/A"}
+        ]
+      },
+      %{
+        title: "RG 1",
+        status_indicator: "Operational",
+        items: [
+          {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
+          {"Śr. prędkość wiatru", "Main.AvWindSpeed", "m/s", "N/A"},
+          {"Kierunek wiatru", "Main.WindDirection", "°", "N/A"},
+          {"Temperatura", "Main.Temperature", "°C", "N/A"}
+        ]
+      },
+      %{
+        title: "RG 2",
+        status_indicator: "Operational",
+        items: [
+          {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
+          {"Śr. prędkość wiatru", "Main.AvWindSpeed", "m/s", "N/A"},
+          {"Kierunek wiatru", "Main.WindDirection", "°", "N/A"},
+          {"Temperatura", "Main.Temperature", "°C", "N/A"}
+        ]
+      },
+      %{
+        title: "DC Converter 1",
         status_indicator: "Operational",
         items: [
           {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
@@ -70,27 +110,27 @@ defmodule Scada.ContainersData do
         ]
       },
       %{
-        title: "RG1",
-        status_indicator: "Operational",
-        items: [
-          {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
-          {"Śr. prędkość wiatru", "Main.AvWindSpeed", "m/s", "N/A"},
-          {"Kierunek wiatru", "Main.WindDirection", "°", "N/A"},
-          {"Temperatura", "Main.Temperature", "°C", "N/A"}
-        ]
-      },
-      %{
-        title: "DC Bus",
-        status_indicator: "Operational",
-        items: [
-          {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
-          {"Śr. prędkość wiatru", "Main.AvWindSpeed", "m/s", "N/A"},
-          {"Kierunek wiatru", "Main.WindDirection", "°", "N/A"},
-          {"Temperatura", "Main.Temperature", "°C", "N/A"}
-        ]
-      },
-      %{
         title: "DC Converter 3",
+        status_indicator: "Operational",
+        items: [
+          {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
+          {"Śr. prędkość wiatru", "Main.AvWindSpeed", "m/s", "N/A"},
+          {"Kierunek wiatru", "Main.WindDirection", "°", "N/A"},
+          {"Temperatura", "Main.Temperature", "°C", "N/A"}
+        ]
+      },
+      %{
+        title: "DC Converter 4",
+        status_indicator: "Operational",
+        items: [
+          {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
+          {"Śr. prędkość wiatru", "Main.AvWindSpeed", "m/s", "N/A"},
+          {"Kierunek wiatru", "Main.WindDirection", "°", "N/A"},
+          {"Temperatura", "Main.Temperature", "°C", "N/A"}
+        ]
+      },
+      %{
+        title: "DC Converter 5",
         status_indicator: "Operational",
         items: [
           {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
@@ -110,7 +150,7 @@ defmodule Scada.ContainersData do
         ]
       },
       %{
-        title: "RG2",
+        title: "DC meter 1",
         status_indicator: "Operational",
         items: [
           {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
@@ -120,7 +160,7 @@ defmodule Scada.ContainersData do
         ]
       },
       %{
-        title: "DC Charger",
+        title: "DC meter 2",
         status_indicator: "Operational",
         items: [
           {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
@@ -130,7 +170,7 @@ defmodule Scada.ContainersData do
         ]
       },
       %{
-        title: "Wind Turbine",
+        title: "DC meter 3",
         status_indicator: "Operational",
         items: [
           {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
@@ -140,7 +180,37 @@ defmodule Scada.ContainersData do
         ]
       },
       %{
-        title: "SCAP Battery",
+        title: "DC meter 4",
+        status_indicator: "Operational",
+        items: [
+          {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
+          {"Śr. prędkość wiatru", "Main.AvWindSpeed", "m/s", "N/A"},
+          {"Kierunek wiatru", "Main.WindDirection", "°", "N/A"},
+          {"Temperatura", "Main.Temperature", "°C", "N/A"}
+        ]
+      },
+      %{
+        title: "DC meter 5",
+        status_indicator: "Operational",
+        items: [
+          {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
+          {"Śr. prędkość wiatru", "Main.AvWindSpeed", "m/s", "N/A"},
+          {"Kierunek wiatru", "Main.WindDirection", "°", "N/A"},
+          {"Temperatura", "Main.Temperature", "°C", "N/A"}
+        ]
+      },
+      %{
+        title: "DC meter 6",
+        status_indicator: "Operational",
+        items: [
+          {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
+          {"Śr. prędkość wiatru", "Main.AvWindSpeed", "m/s", "N/A"},
+          {"Kierunek wiatru", "Main.WindDirection", "°", "N/A"},
+          {"Temperatura", "Main.Temperature", "°C", "N/A"}
+        ]
+      },
+      %{
+        title: "DC meter 7",
         status_indicator: "Operational",
         items: [
           {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},

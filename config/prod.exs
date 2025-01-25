@@ -3,7 +3,7 @@ import Config
 # Configure the endpoint for production
 config :scada, ScadaWeb.Endpoint,
   # Binding to a public IP address and setting the port (e.g., 80 for HTTP or 443 for HTTPS)
-  http: [ip: {0, 0, 0, 0}, port: 4000],
+  http: [ip: {0, 0, 0, 0}, port: 4020],
   # Enable SSL if required (uncomment and configure below)
   # https: [
   #   port: 443,
