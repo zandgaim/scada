@@ -1,49 +1,49 @@
-# Stage 1: Build the Phoenix app
-FROM elixir:1.15 AS builder
+# Use the latest Elixir image
+FROM elixir:latest
 
-# Install Node.js, Python, and other necessary dependencies
-RUN apt-get update && apt-get install -y \
-    nodejs \
-    npm \
-    git \
-    python3 \
-    python3-pip \
-    python3-venv \
-    && apt-get clean
+# Expose the Phoenix default port
+EXPOSE 4020
 
-# Set the working directory for the Phoenix app
+# Install system dependencies (PostgreSQL client, inotify-tools, Node.js, npm, Python, pip, and additional tools)
+RUN apt-get update && \
+    apt-get install -y \
+    postgresql-client inotify-tools nodejs python3 python3-pip python3-venv build-essential libpcap-dev && \
+    curl -L https://npmjs.org/install.sh | sh
+
+# Create a Python virtual environment and install pyads
+RUN python3 -m venv /opt/pyenv && \
+    /opt/pyenv/bin/pip install --upgrade pip && \
+    /opt/pyenv/bin/pip install pyads==3.4.2
+
+# Add the virtual environment's Python and pip to PATH
+ENV PATH="/opt/pyenv/bin:$PATH"
+
+# Install Elixir and Phoenix tools
+RUN mix local.hex --force && \
+    mix archive.install hex phx_new 1.7.18 --force && \
+    mix local.rebar --force
+
+# Symlink python3 to python for compatibility
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+# Cleanup
+RUN rm -rf /var/lib/apt/lists/*
+# Set the working directory inside the container
 WORKDIR /app
 
-# Install Elixir dependencies
-COPY mix.exs mix.lock ./ 
-RUN mix local.hex --force && mix local.rebar --force
-RUN mix deps.get --only dev
-
-# Copy the Phoenix application files
+# Copy the project files into the container
 COPY . .
 
-# Install dependencies for the Phoenix app in production mode
-RUN MIX_ENV=dev mix deps.get
-RUN MIX_ENV=dev mix compile
+# Install Elixir/Phoenix dependencies
+RUN mix deps.get
 
-# Build assets for Phoenix
-RUN MIX_ENV=dev mix phx.digest
+# Install npm dependencies for assets (optional for Phoenix projects)
+WORKDIR /app/assets
+RUN npm install
 
-# Set up the Python virtual environment
-WORKDIR /app/priv/python
-
-# Create a virtual environment and install Python dependencies
-RUN python3 -m venv /app/priv/python/venv
-RUN /app/priv/python/venv/bin/pip install --no-cache-dir -r requirements.txt
-
-# Ensure the virtual environment's binary folder is in the PATH
-ENV PATH="/app/priv/python/venv/bin:$PATH"
-
-# Set the working directory back to the app root
+# Compile the Phoenix app and prepare assets
 WORKDIR /app
+RUN mix assets.deploy && mix compile
 
-# Expose the Phoenix app port
-EXPOSE 4000
-
-# Start the Phoenix app
+# Default command to run the Phoenix server
 CMD ["mix", "phx.server"]

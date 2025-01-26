@@ -165,7 +165,7 @@ defmodule Scada.PythonPort do
          %{"status" => "connected", "message" => message},
          state
        ) do
-    new_state = %{state | connected: true, status: "connected", message: message}
+    new_state = %{state | connected: true, status: "Connected", message: message}
     broadcast(new_state)
     Logger.info("Connection established successfully: #{message}")
     {:noreply, new_state}

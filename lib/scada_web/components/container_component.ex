@@ -20,14 +20,14 @@ defmodule ScadaWeb.Components.ContainerComponent do
         {top, left} = position_coordinates(id) %>
         <div
           id={id}
-          class="absolute bg-gray-800 p-4 rounded-lg shadow-md text-white flex items-start"
+          class="container-box"
           style={"top: #{top}px; left: #{left}px; width: 350px; height: 240px;"}
         >
           <!-- Icon and Status -->
           <div class="flex-shrink-0 flex flex-col items-center mr-4">
             <div class="w-14 h-14 bg-gray-600 rounded-full flex items-center justify-center">
               <img
-                src={"/images/containers/#{delete_numb(id)}.png"}
+                src={"/images/containers/#{normalize_string(id)}.png"}
                 alt="Status Icon"
                 class="w-10 h-10 object-contain"
                 onerror="this.onerror=null; this.src='/images/default_icon.png';"
@@ -40,10 +40,10 @@ defmodule ScadaWeb.Components.ContainerComponent do
               </div>
             <% end %>
           </div>
-          
+
     <!-- Title and Key-Value Grid -->
           <div class="flex-grow">
-            <h3 class="text-xl font-bold text-white">{delete_numb(title) || "Untitled"}</h3>
+            <h3 class="text-xl font-bold text-white">{normalize_string(title) || "Untitled"}</h3>
 
             <div class="grid grid-cols-2 gap-y-3 text-m">
               <%= for {label, _, symb, value} <- container.items do %>
@@ -68,9 +68,9 @@ defmodule ScadaWeb.Components.ContainerComponent do
     |> String.replace(" ", "_")
   end
 
-  defp delete_numb(id) do
+  defp normalize_string(id) do
     id
-    |> String.replace(["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"], "")
+    |> String.replace(["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "/"], "")
   end
 
   defp position_coordinates(id) do
