@@ -1,49 +1,34 @@
-# Use the latest Elixir image
-FROM elixir:latest
+# Stage 1: Build Stage
+FROM elixir:latest AS builder
 
-# Expose the Phoenix default port
-EXPOSE 4020
+ENV MIX_ENV=prod
+WORKDIR /app
 
-# Install system dependencies (PostgreSQL client, inotify-tools, Node.js, npm, Python, pip, and additional tools)
-RUN apt-get update && \
-    apt-get install -y \
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
     postgresql-client inotify-tools nodejs python3 python3-pip python3-venv build-essential libpcap-dev && \
     curl -L https://npmjs.org/install.sh | sh
 
-# Create a Python virtual environment and install pyads
-RUN python3 -m venv /opt/pyenv && \
-    /opt/pyenv/bin/pip install --upgrade pip && \
-    /opt/pyenv/bin/pip install pyads==3.4.2
-
-# Add the virtual environment's Python and pip to PATH
-ENV PATH="/opt/pyenv/bin:$PATH"
-
-# Install Elixir and Phoenix tools
+# Install dependencies for Elixir and Phoenix
 RUN mix local.hex --force && \
     mix archive.install hex phx_new 1.7.18 --force && \
     mix local.rebar --force
 
-# Symlink python3 to python for compatibility
-RUN ln -s /usr/bin/python3 /usr/bin/python
-
-# Cleanup
-RUN rm -rf /var/lib/apt/lists/*
-# Set the working directory inside the container
-WORKDIR /app
-
-# Copy the project files into the container
+# Copy app files
 COPY . .
 
-# Install Elixir/Phoenix dependencies
-RUN mix deps.get
+# Install app dependencies and build the release
+RUN mix deps.get --only prod && \
+    mix assets.deploy && \
+    mix release
 
-# Install npm dependencies for assets (optional for Phoenix projects)
-WORKDIR /app/assets
-RUN npm install
+# Stage 2: Final Runtime Image
+FROM elixir:latest
 
-# Compile the Phoenix app and prepare assets
-WORKDIR /app
-RUN mix assets.deploy && mix compile
+ENV MIX_ENV=prod PORT=4020
+EXPOSE $PORT
 
-# Default command to run the Phoenix server
-CMD ["mix", "phx.server"]
+# Copy the release from the build stage
+COPY --from=builder /app/_build/prod/rel/scada /app
+
+CMD ["/app/bin/scada", "start"]

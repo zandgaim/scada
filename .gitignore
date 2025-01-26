@@ -37,4 +37,5 @@ npm-debug.log
 venv/Lib/site-packages/__pycache__/
 venv/Lib/__pycache__/
 /logs/*
+.env
 

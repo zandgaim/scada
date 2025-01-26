@@ -15,7 +15,7 @@ defmodule Scada.MixProject do
           # Bundles the Erlang runtime
           include_erts: true,
           # Choose platform (e.g., :unix or :windows)
-          include_executables_for: [:windows],
+          include_executables_for: [:unix],
           # Build steps: assemble app, then package it
           steps: [:assemble, :tar]
         ]
