@@ -11,12 +11,7 @@ Features:
  * Docker support for easy deployment
 # Setup
 
-First of all run script priv/scripts/setup_python_env.bat:
+Install Docker, then:
 
-  * Run `.\priv\scripts\setup_python_env.bat`
-
-
-To start your Phoenix server:
-
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `iex -S mix phx.server`
+  * Build `docker build -t scada .`
+  * Run `docker run -d -p 4020:4020 scada`
