@@ -33,22 +33,22 @@ defmodule ScadaWeb.Components.ContainerComponent do
                 onerror="this.onerror=null; this.src='/images/default_icon.png';"
               />
             </div>
-
+            
             <%= if container.status_indicator do %>
               <div class="mt-2">
                 <div class={"w-3 h-3 rounded-full #{status_class(container.status_indicator)}"}></div>
               </div>
             <% end %>
           </div>
-
+          
     <!-- Title and Key-Value Grid -->
           <div class="flex-grow">
             <h3 class="text-xl font-bold text-white">{normalize_string(title) || "Untitled"}</h3>
-
+            
             <div class="grid grid-cols-2 gap-y-3 text-m">
               <%= for {label, _, symb, value} <- container.items do %>
                 <div class="col-span-1 text-gray-400">{label}</div>
-
+                
                 <div class="col-span-1 text-right font-semibold text-gray-100">
                   {value || "N/A"} {symb}
                 </div>

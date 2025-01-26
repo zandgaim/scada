@@ -7,19 +7,19 @@ defmodule ScadaWeb.Components.ConnectionStatusComponent do
       <div class="flex flex-col items-center">
         <div class="flex items-center space-x-4">
           <div class={"rounded-full w-4 h-4 " <> status_color(@status)}></div>
-          
+
           <h2 class="text-2xl font-semibold">Connection Status: {@status}</h2>
         </div>
-        
+
         <p class="text-lg text-gray-600 mt-2">{@message}</p>
       </div>
       
     <!-- TCP Status and Message -->
       <div class="mt-6 p-4 bg-gray-50 rounded-lg shadow-inner border-t">
         <h3 class="text-md font-semibold text-teal-700">TCP Details</h3>
-        
+
         <p class="text-sm text-gray-700 mt-1"><strong>Status:</strong> {@tcp_status}</p>
-        
+
         <p class="text-sm text-gray-700"><strong>Message:</strong> {@tcp_message}</p>
       </div>
     </section>
