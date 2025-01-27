@@ -16,7 +16,7 @@
   }
   
 .container-box:hover {
-transform: scale(1.25);
+transform: scale(1.15);
 box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
 }
 
