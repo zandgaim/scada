@@ -20,7 +20,7 @@ defmodule Scada.ContainersData do
         ]
       },
       %{
-        title: "AC Bus",
+        title: "AC Grid",
         status_indicator: "Operational",
         items: [
           {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
@@ -150,7 +150,7 @@ defmodule Scada.ContainersData do
         ]
       },
       %{
-        title: "DC meter 1",
+        title: "EV Charger",
         status_indicator: "Operational",
         items: [
           {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
@@ -160,57 +160,7 @@ defmodule Scada.ContainersData do
         ]
       },
       %{
-        title: "DC meter 2",
-        status_indicator: "Operational",
-        items: [
-          {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
-          {"Śr. prędkość wiatru", "Main.AvWindSpeed", "m/s", "N/A"},
-          {"Kierunek wiatru", "Main.WindDirection", "°", "N/A"},
-          {"Temperatura", "Main.Temperature", "°C", "N/A"}
-        ]
-      },
-      %{
-        title: "DC meter 3",
-        status_indicator: "Operational",
-        items: [
-          {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
-          {"Śr. prędkość wiatru", "Main.AvWindSpeed", "m/s", "N/A"},
-          {"Kierunek wiatru", "Main.WindDirection", "°", "N/A"},
-          {"Temperatura", "Main.Temperature", "°C", "N/A"}
-        ]
-      },
-      %{
-        title: "DC meter 4",
-        status_indicator: "Operational",
-        items: [
-          {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
-          {"Śr. prędkość wiatru", "Main.AvWindSpeed", "m/s", "N/A"},
-          {"Kierunek wiatru", "Main.WindDirection", "°", "N/A"},
-          {"Temperatura", "Main.Temperature", "°C", "N/A"}
-        ]
-      },
-      %{
-        title: "DC meter 5",
-        status_indicator: "Operational",
-        items: [
-          {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
-          {"Śr. prędkość wiatru", "Main.AvWindSpeed", "m/s", "N/A"},
-          {"Kierunek wiatru", "Main.WindDirection", "°", "N/A"},
-          {"Temperatura", "Main.Temperature", "°C", "N/A"}
-        ]
-      },
-      %{
-        title: "DC meter 6",
-        status_indicator: "Operational",
-        items: [
-          {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
-          {"Śr. prędkość wiatru", "Main.AvWindSpeed", "m/s", "N/A"},
-          {"Kierunek wiatru", "Main.WindDirection", "°", "N/A"},
-          {"Temperatura", "Main.Temperature", "°C", "N/A"}
-        ]
-      },
-      %{
-        title: "DC meter 7",
+        title: "Self Power",
         status_indicator: "Operational",
         items: [
           {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},

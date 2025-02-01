@@ -22,6 +22,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
        last_message: nil,
        form_data: %{"field_name" => ""},
        containers: get_containers(),
+       selected_container: nil,
        fetch_interval: "2"
      )}
   end
@@ -53,7 +54,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
           </form>
         </div>
       </header>
-      
+
     <!-- Main Content -->
       <main class="flex flex-col items-center mt-4 px-6">
         <!-- Status Section -->
@@ -65,10 +66,19 @@ defmodule ScadaWeb.Pages.ConnectionLive do
           tcp_status={@tcp_status}
           tcp_message={@tcp_message}
         />
-        
+
     <!-- Containers -->
         <.live_component id="containers_main" module={ContainerComponent} containers={@containers} />
-        
+
+        <%= if @selected_container do %>
+          <.live_component
+            module={ScadaWeb.ContainerTableComponent}
+            id="container-table"
+            container_name={@selected_container}
+            items={@selected_items}
+          />
+        <% end %>
+
     <!-- Form Section -->
         <%!-- <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
           <.form
@@ -104,6 +114,16 @@ defmodule ScadaWeb.Pages.ConnectionLive do
       </main>
     </div>
     """
+  end
+
+  def handle_event("show_table", %{"id" => container_id}, socket) do
+    container_id = denormalize_id(container_id)
+    items = Map.get(socket.assigns.containers, container_id, %{items: []}).items
+    {:noreply, assign(socket, selected_container: container_id, selected_items: items)}
+  end
+
+  def handle_info({:hide_table}, socket) do
+    {:noreply, assign(socket, selected_container: nil, selected_items: nil)}
   end
 
   def handle_event("validate_field", %{"field_name" => field_name}, socket) do
@@ -149,6 +169,9 @@ defmodule ScadaWeb.Pages.ConnectionLive do
        tcp_message: state.tcp_message
      )}
   end
+
+  defp denormalize_id(title),
+    do: title |> to_string() |> String.replace("_", " ")
 
   defp get_state do
     Scada.PythonPort.get_state()
