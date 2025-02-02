@@ -5,16 +5,16 @@ defmodule ScadaWeb.Components.ContainerComponent do
     ~H"""
     <div class="relative w-[1640px] h-[1250px]">
       <svg class="absolute w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-        <line x1="175" y1="490" x2="175" y2="810" stroke="blue" stroke-width="4" />
-        <line x1="175" y1="810" x2="395" y2="810" stroke="blue" stroke-width="4" />
-        <line x1="395" y1="810" x2="395" y2="1130" stroke="blue" stroke-width="4" />
-        <line x1="175" y1="170" x2="2325" y2="170" stroke="blue" stroke-width="4" />
-        <line x1="820" y1="490" x2="2325" y2="490" stroke="blue" stroke-width="4" />
-        <line x1="490" y1="810" x2="2325" y2="810" stroke="blue" stroke-width="4" />
-        <line x1="175" y1="1130" x2="2325" y2="1130" stroke="blue" stroke-width="4" />
-        <line x1="820" y1="50" x2="820" y2="1250" stroke="red" stroke-width="6" />
+        <line x1="175" y1="490" x2="175" y2="810" stroke="#1989ac" stroke-width="6" />
+        <line x1="175" y1="810" x2="398" y2="810" stroke="#1989ac" stroke-width="6" />
+        <line x1="395" y1="810" x2="395" y2="1130" stroke="#1989ac" stroke-width="6" />
+        <line x1="175" y1="170" x2="2325" y2="170" stroke="#1989ac" stroke-width="6" />
+        <line x1="820" y1="490" x2="2325" y2="490" stroke="#1989ac" stroke-width="6" />
+        <line x1="490" y1="810" x2="2325" y2="810" stroke="#1989ac" stroke-width="6" />
+        <line x1="175" y1="1130" x2="2325" y2="1130" stroke="#1989ac" stroke-width="6" />
+        <line x1="820" y1="50" x2="820" y2="1250" stroke="#be3144" stroke-width="8" />
       </svg>
-      
+
       <%= for {title, container} <- @containers do %>
         <% id = normalize_id(title)
         {top, left} = position_coordinates(id) %>
@@ -34,21 +34,21 @@ defmodule ScadaWeb.Components.ContainerComponent do
                 onerror="this.onerror=null; this.src='/images/default_icon.png';"
               />
             </div>
-            
+
             <%= if container.status_indicator do %>
               <div class="mt-2">
                 <div class={"w-3 h-3 rounded-full #{status_class(container.status_indicator)}"}></div>
               </div>
             <% end %>
           </div>
-          
+
           <div class="flex-grow">
             <h3 class="text-xl font-bold text-white">{normalize_string(title) || "Untitled"}</h3>
-            
+
             <div class="grid grid-cols-2 gap-y-3 text-m">
               <%= for {label, _, symb, value} <- container.items do %>
                 <div class="col-span-1 text-gray-400">{label}</div>
-                
+
                 <div class="col-span-1 text-right font-semibold text-gray-100">
                   {value || "N/A"} {symb}
                 </div>

@@ -69,8 +69,5 @@ defmodule ScadaWeb.ContainerTableComponent do
   defp id_to_title(str) do
     str
     |> String.replace("_", " ")
-    |> String.split()
-    |> Enum.map(&String.capitalize/1)
-    |> Enum.join(" ")
   end
 end

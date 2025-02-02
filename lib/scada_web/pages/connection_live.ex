@@ -31,10 +31,10 @@ defmodule ScadaWeb.Pages.ConnectionLive do
     ~H"""
     <div
       id="connection-status"
-      class="flex flex-col min-h-screen bg-gradient-to-b from-gray-400 to-gray-300"
+      class="flex flex-col min-h-screen bg-gradient-to-b from-gray-300 to-gray-200"
     >
       <!-- Header -->
-      <header class="w-full bg-teal-700 text-white p-4 flex justify-between items-center shadow-md">
+      <header class="w-full bg-gray-700 text-white p-4 flex justify-between items-center shadow-md">
         <h1 class="text-xl font-bold">SCADA Web</h1>
 
         <div class="flex items-center space-x-3">
@@ -43,7 +43,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
             <select
               id="fetch_interval"
               name="fetch_interval"
-              class="bg-teal-600 text-white rounded-md pl-3 pr-8 py-1 border border-teal-500 focus:outline-none focus:ring-2 focus:ring-white focus:border-white appearance-none"
+              class="bg-gray-600 text-white rounded-md pl-3 pr-8 py-1 border border-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:border-white appearance-none"
             >
               <option value="1" selected={@fetch_interval == "1"}>1s</option>
 
@@ -54,7 +54,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
           </form>
         </div>
       </header>
-
+      
     <!-- Main Content -->
       <main class="flex flex-col items-center mt-4 px-6">
         <!-- Status Section -->
@@ -66,7 +66,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
           tcp_status={@tcp_status}
           tcp_message={@tcp_message}
         />
-
+        
     <!-- Containers -->
         <.live_component id="containers_main" module={ContainerComponent} containers={@containers} />
 
@@ -78,9 +78,9 @@ defmodule ScadaWeb.Pages.ConnectionLive do
             items={@selected_items}
           />
         <% end %>
-
+        
     <!-- Form Section -->
-        <%!-- <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
+        <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
           <.form
             for={@form_data}
             phx-submit="fetch_data"
@@ -101,8 +101,8 @@ defmodule ScadaWeb.Pages.ConnectionLive do
                 class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
               />
             </div>
-
-            <!-- Query Button -->
+            
+    <!-- Query Button -->
             <button
               type="submit"
               class="bg-teal-700 hover:bg-teal-800 text-white font-semibold px-6 py-2 rounded-lg transition duration-300"
@@ -110,7 +110,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
               Query
             </button>
           </.form>
-        </section> --%>
+        </section>
       </main>
     </div>
     """
