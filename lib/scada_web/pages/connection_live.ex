@@ -23,7 +23,8 @@ defmodule ScadaWeb.Pages.ConnectionLive do
        form_data: %{"field_name" => ""},
        containers: get_containers(),
        selected_container: nil,
-       fetch_interval: "2"
+       fetch_interval: "2",
+       selected_label: nil
      )}
   end
 
@@ -76,6 +77,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
             id="container-table"
             container_name={@selected_container}
             items={@selected_items}
+            selected_label={@selected_label}
           />
         <% end %>
         

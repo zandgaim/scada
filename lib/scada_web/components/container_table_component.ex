@@ -1,5 +1,6 @@
 defmodule ScadaWeb.ContainerTableComponent do
   use ScadaWeb, :live_component
+  alias Scada.PlotGenerator
 
   def render(assigns) do
     ~H"""
@@ -22,6 +23,7 @@ defmodule ScadaWeb.ContainerTableComponent do
           <h2 class="text-2xl font-semibold text-white">
             {id_to_title(@container_name)}
           </h2>
+
           <button
             phx-click="hide_table"
             phx-target={@myself}
@@ -39,13 +41,16 @@ defmodule ScadaWeb.ContainerTableComponent do
             <thead class="bg-gray-800 text-gray-300">
               <tr>
                 <th class="py-3 px-4 text-left">Label</th>
+
                 <th class="py-3 px-4 text-left">Value</th>
               </tr>
             </thead>
+
             <tbody>
               <%= for {label, _, unit, value} <- @items do %>
                 <tr class="border-b border-gray-700 hover:bg-gray-800 transition duration-200">
                   <td class="py-3 px-4 text-gray-300">{label}</td>
+
                   <td class="py-3 px-4 text-gray-100 font-medium">{value || "N/A"} {unit}</td>
                 </tr>
               <% end %>
