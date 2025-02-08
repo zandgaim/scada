@@ -1,10 +1,15 @@
-defmodule ScadaWeb.Pages.ConnectionLive do
+defmodule ScadaWeb.Pages.ScadaLive do
   use Phoenix.LiveView
 
   import Phoenix.Component
 
   alias Phoenix.PubSub
-  alias ScadaWeb.Components.{ConnectionStatusComponent, ContainerComponent}
+
+  alias ScadaWeb.Components.{
+    ConnectionStatusComponent,
+    ContainerComponent,
+    ContainerTableComponent
+  }
 
   def mount(_params, _session, socket) do
     PubSub.subscribe(Scada.PubSub, "connection_status")
@@ -73,7 +78,7 @@ defmodule ScadaWeb.Pages.ConnectionLive do
 
         <%= if @selected_container do %>
           <.live_component
-            module={ScadaWeb.ContainerTableComponent}
+            module={ContainerTableComponent}
             id="container-table"
             container_name={@selected_container}
             items={@selected_items}
@@ -156,7 +161,13 @@ defmodule ScadaWeb.Pages.ConnectionLive do
   end
 
   def handle_info({:update_containers, containers}, socket) do
-    {:noreply, assign(socket, containers: containers)}
+    selected_items =
+      case socket.assigns.selected_container do
+        nil -> nil
+        selected_container -> Map.get(containers, selected_container, %{items: []}).items
+      end
+
+    {:noreply, assign(socket, containers: containers, selected_items: selected_items)}
   end
 
   def handle_info(state, socket) do

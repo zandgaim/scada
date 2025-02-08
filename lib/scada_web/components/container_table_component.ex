@@ -1,4 +1,4 @@
-defmodule ScadaWeb.ContainerTableComponent do
+defmodule ScadaWeb.Components.ContainerTableComponent do
   use ScadaWeb, :live_component
   alias Scada.PlotGenerator
 
@@ -34,15 +34,14 @@ defmodule ScadaWeb.ContainerTableComponent do
             ✖
           </button>
         </div>
-        
+
     <!-- Table Content -->
         <div class="mt-4 overflow-y-auto max-h-[75vh] custom-scrollbar">
-          <table class="w-full text-white border-collapse">
+          <table class="w-full text-white border-collapse" style="table-layout: fixed;">
             <thead class="bg-gray-800 text-gray-300">
               <tr>
-                <th class="py-3 px-4 text-left">Label</th>
-
-                <th class="py-3 px-4 text-left">Value</th>
+                <th class="py-3 px-4 text-left w-1/2">Label</th>
+                <th class="py-3 px-4 text-left w-1/2">Value</th>
               </tr>
             </thead>
 

@@ -18,7 +18,7 @@ defmodule ScadaWeb.Router do
   scope "/", ScadaWeb do
     pipe_through :browser
 
-    live "/", Pages.ConnectionLive
+    live "/", Pages.ScadaLive
   end
 
   if Application.compile_env(:scada, :dev_routes) do
@@ -28,7 +28,7 @@ defmodule ScadaWeb.Router do
       pipe_through :browser
 
       # LiveView route for connection page
-      live "/", Pages.ConnectionLive
+      live "/", Pages.ScadaLive
     end
   end
 end
