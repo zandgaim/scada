@@ -114,40 +114,23 @@ defmodule Scada.PythonPort do
     {:noreply, new_state}
   end
 
-  def handle_call({:fetch_data, _data}, _from, %{connected: false} = state) do
-    Logger.warning("Trying to fetch_data while not connected to Python service")
+  def handle_call({rout, _data}, _from, %{connected: false} = state) do
+    Logger.warning("Trying to #{rout} while not connected to Python service")
 
     {:reply, %{"status" => "error", "message" => "Not connected to Python service"}, state}
   end
 
   def handle_call({:fetch_data, data}, _from, %{connected: true, socket: socket} = state) do
-    request = Jason.encode!(%{command: "fetch_data", data: data})
-    :gen_tcp.send(socket, request <> "\n")
+    tcp_send(socket, "fetch_data", data)
 
     {:reply, %{"status" => "fetching", "message" => "Request sent to fetch"}, state}
   end
 
-  def handle_call({:fetch_data, _data}, _from, %{connected: false} = state) do
-    {:reply, %{"status" => "error", "message" => "Not connected to Python service"}, state}
-  end
-
-  def handle_call({:set_data, _data}, _from, %{connected: false} = state) do
-    Logger.warning("Trying to set_data while not connected to Python service")
-
-    {:reply, %{"status" => "error", "message" => "Not connected to Python service"}, state}
-  end
-
   def handle_call({:set_data, data}, _from, %{connected: true, socket: socket} = state) do
     Logger.info("Setting data..")
-
-    request = Jason.encode!(%{command: "set_data", data: data})
-    :gen_tcp.send(socket, request <> "\n")
+    tcp_send(socket, "set_data", data)
 
     {:reply, %{"status" => "setting", "message" => "Request to set"}, state}
-  end
-
-  def handle_call({:set_data, _data}, _from, %{connected: false} = state) do
-    {:reply, %{"status" => "error", "message" => "Not connected to Python service"}, state}
   end
 
   def handle_call(:get_state, _from, state) do
@@ -160,24 +143,6 @@ defmodule Scada.PythonPort do
     }
 
     {:reply, attrs, state}
-  end
-
-  defp connect_to_ads(socket, request) do
-    encoded_request =
-      %{
-        ams_net_id: @ams_net_id,
-        ams_port: @ams_port
-      }
-      |> Map.merge(request)
-      |> Jason.encode!()
-
-    case :gen_tcp.send(socket, encoded_request <> "\n") do
-      :ok ->
-        :ok
-
-      {:error, reason} ->
-        Logger.error("Failed to send ADS request: #{inspect(reason)}")
-    end
   end
 
   defp handle_routing_key(
@@ -243,14 +208,39 @@ defmodule Scada.PythonPort do
     {:noreply, state}
   end
 
-  defp handle_routing_key(_socket, _unknown_key, %{"message" => message}, state) do
-    new_state = %{state | status: "error", message: "Unhandled routing key: #{message}"}
+  defp handle_routing_key(_socket, key, %{"message" => message}, state) do
+    Logger.error("Unknown routing key received: #{key}. Message: #{message}")
+
+    new_state = %{
+      state
+      | status: "error",
+        message: "Unknown command: #{key}"
+    }
+
     broadcast(new_state)
-    Logger.warning("Unhandled routing key: #{message}")
     {:noreply, new_state}
   end
 
+  defp connect_to_ads(socket, request) do
+    encoded_request =
+      %{
+        ams_net_id: @ams_net_id,
+        ams_port: @ams_port
+      }
+      |> Map.merge(request)
+      |> Jason.encode!()
+
+    case :gen_tcp.send(socket, encoded_request <> "\n") do
+      :ok ->
+        :ok
+
+      {:error, reason} ->
+        Logger.error("Failed to send ADS request: #{inspect(reason)}")
+    end
+  end
+
   defp connect do
+    Logger.info("Retrying connection in #{@retry_interval / 1000} seconds...")
     Process.send_after(self(), :connect, @retry_interval)
   end
 
@@ -259,6 +249,11 @@ defmodule Scada.PythonPort do
       System.cmd("python", [@ads_service])
       Logger.info("Python script started for ADS service")
     end)
+  end
+
+  defp tcp_send(socket, command, data) do
+    message = Jason.encode!(%{command: command, data: data}) <> "\n"
+    :gen_tcp.send(socket, message)
   end
 
   defp broadcast(state) do
@@ -272,7 +267,7 @@ defmodule Scada.PythonPort do
 
     Phoenix.PubSub.broadcast(
       Scada.PubSub,
-      "connection_status",
+      "scada_status",
       attrs
     )
   end

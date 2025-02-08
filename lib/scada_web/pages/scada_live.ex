@@ -12,7 +12,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
   }
 
   def mount(_params, _session, socket) do
-    PubSub.subscribe(Scada.PubSub, "connection_status")
+    PubSub.subscribe(Scada.PubSub, "scada_status")
     state = get_state()
 
     {:ok,
@@ -67,7 +67,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
       <main class="flex flex-col items-center mt-4 px-6">
         <!-- Status Section -->
         <.live_component
-          id="connection_status"
+          id="scada_status"
           module={ConnectionStatusComponent}
           status={@status}
           message={@message}
@@ -85,7 +85,6 @@ defmodule ScadaWeb.Pages.ScadaLive do
             container_name={@selected_container}
             items={@selected_items}
             selected_label={@selected_label}
-            config_mode={false}
           />
         <% end %>
 

@@ -67,7 +67,7 @@ defmodule Scada.DataManager do
   end
 
   defp broadcast_data(data) do
-    Phoenix.PubSub.broadcast(Scada.PubSub, "connection_status", {:update_containers, data})
+    Phoenix.PubSub.broadcast(Scada.PubSub, "scada_status", {:update_containers, data})
   end
 
   def get_parameter_map do
