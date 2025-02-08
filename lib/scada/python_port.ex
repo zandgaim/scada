@@ -17,6 +17,10 @@ defmodule Scada.PythonPort do
     GenServer.call(__MODULE__, {:fetch_data, fields})
   end
 
+  def set_data(data) do
+    GenServer.call(__MODULE__, {:set_data, data})
+  end
+
   def start_link(_) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
@@ -117,8 +121,6 @@ defmodule Scada.PythonPort do
   end
 
   def handle_call({:fetch_data, data}, _from, %{connected: true, socket: socket} = state) do
-    Logger.info("Fetching data..")
-
     request = Jason.encode!(%{command: "fetch_data", data: data})
     :gen_tcp.send(socket, request <> "\n")
 
@@ -126,6 +128,25 @@ defmodule Scada.PythonPort do
   end
 
   def handle_call({:fetch_data, _data}, _from, %{connected: false} = state) do
+    {:reply, %{"status" => "error", "message" => "Not connected to Python service"}, state}
+  end
+
+  def handle_call({:set_data, _data}, _from, %{connected: false} = state) do
+    Logger.warning("Trying to set_data while not connected to Python service")
+
+    {:reply, %{"status" => "error", "message" => "Not connected to Python service"}, state}
+  end
+
+  def handle_call({:set_data, data}, _from, %{connected: true, socket: socket} = state) do
+    Logger.info("Setting data..")
+
+    request = Jason.encode!(%{command: "set_data", data: data})
+    :gen_tcp.send(socket, request <> "\n")
+
+    {:reply, %{"status" => "setting", "message" => "Request to set"}, state}
+  end
+
+  def handle_call({:set_data, _data}, _from, %{connected: false} = state) do
     {:reply, %{"status" => "error", "message" => "Not connected to Python service"}, state}
   end
 
@@ -210,6 +231,16 @@ defmodule Scada.PythonPort do
       broadcast(new_state)
       {:noreply, new_state}
     end
+  end
+
+  defp handle_routing_key(_socket, "set_data", %{"message" => message, "data" => data}, state) do
+    Logger.info("Set data response: #{message}, data: #{inspect(data)}")
+    {:noreply, state}
+  end
+
+  defp handle_routing_key(_socket, "set_data", %{"message" => message}, state) do
+    Logger.warning("Set data response: #{message}")
+    {:noreply, state}
   end
 
   defp handle_routing_key(_socket, _unknown_key, %{"message" => message}, state) do

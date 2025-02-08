@@ -6,7 +6,6 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
     <div
       id="container-overlay"
       phx-click="hide_table"
-      phx-target={@myself}
       class="fixed inset-0 right-0 bg-black bg-opacity-40 z-40 flex justify-end transition-opacity duration-300"
     >
       <div
@@ -16,10 +15,10 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
       >
         <div class="flex justify-between items-center border-b border-gray-700 pb-4">
           <h2 class="text-2xl font-semibold text-white">
-            <%= id_to_title(@container_name) %>
+            {id_to_title(@container_name)}
           </h2>
 
-          <button phx-click="hide_table" phx-target={@myself} class="text-white text-2xl">
+          <button phx-click="hide_table" class="text-white text-2xl">
             ✖
           </button>
         </div>
@@ -46,7 +45,6 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
           </button>
         </div>
 
-        <!-- DATA TABLE -->
         <div class="overflow-y-auto max-h-[75vh]">
           <table class="w-full text-white">
             <thead>
@@ -58,19 +56,21 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
             <tbody>
               <%= for {label, key, unit, value} <- @items do %>
                 <tr class="border-b border-gray-700">
-                  <td class="py-2 px-4 text-gray-300"><%= label %></td>
+                  <td class="py-2 px-4 text-gray-300">{label}</td>
 
                   <td class="py-2 px-4">
                     <%= if @config_mode do %>
-                      <input type="text"
-                        phx-change="edit_value"
-                        phx-target={@myself}
-                        phx-value-key={key}
-                        value={Map.get(@edited_values, key, value)}
-                        class="bg-gray-800 text-white border border-gray-600 p-1 rounded w-full"
-                      />
+                      <form phx-change="edit_data">
+                        <input
+                          type="number"
+                          name={"data[#{key}]"}
+                          phx-change="edit_data"
+                          value={Map.get(@edited_values, key, value)}
+                          class="bg-gray-800 text-white border border-gray-600 p-1 rounded w-full"
+                        />
+                      </form>
                     <% else %>
-                      <span><%= value %> <%= unit %></span>
+                      <span>{value} {unit}</span>
                     <% end %>
                   </td>
                 </tr>
@@ -79,9 +79,8 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
           </table>
         </div>
 
-        <!-- SAVE BUTTON (Only in Config Mode) -->
         <%= if @config_mode do %>
-          <button phx-click="save_values" phx-target={@myself} class="mt-4 px-4 py-2 bg-blue-600 text-white rounded">
+          <button phx-click="set_data" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded">
             Save
           </button>
         <% end %>
@@ -91,12 +90,14 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
   end
 
   def update(assigns, socket) do
+    new_items = if socket.assigns[:config_mode], do: socket.assigns.items, else: assigns.items
+
     {:ok,
      assign(socket,
        container_name: assigns.container_name,
-       items: assigns.items,
-       config_mode: false,
-       edited_values: %{}
+       items: new_items,
+       config_mode: socket.assigns[:config_mode] || false,
+       edited_values: socket.assigns[:edited_values] || %{}
      )}
   end
 
@@ -106,21 +107,6 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
 
   def handle_event("switch_view", %{"mode" => "config"}, socket) do
     {:noreply, assign(socket, config_mode: true)}
-  end
-
-  def handle_event("edit_value", %{"key" => key, "value" => value}, socket) do
-    edited_values = Map.put(socket.assigns.edited_values, key, value)
-    {:noreply, assign(socket, edited_values: edited_values)}
-  end
-
-  def handle_event("save_values", _, socket) do
-    # send(self(), {:update_values, socket.assigns.edited_values})
-    {:noreply, socket}
-  end
-
-  def handle_event("hide_table", _, socket) do
-    send(self(), {:hide_table})
-    {:noreply, socket}
   end
 
   def handle_event("stop-propagation", _, socket) do

@@ -153,23 +153,51 @@ def fetch_plc_data(plc, var_list):
             "routing_key": "fetch_data",
             "message": f"Failed to fetch {var_list}: {str(e)}",
         }
+    
+def set_plc_data(plc, var_list):
+    if not plc or not plc.is_open:
+        logger.warning("Not connected to PLC.")
+        return {
+            "routing_key": "set_data",
+            "message": "Not connected to PLC.",
+        }
+
+    try:
+        logger.info(f"Seting data: {var_list}")
+        result = plc.write_list_by_name(var_list)
+
+        return {
+            "routing_key": "set_data",
+            "status": "connected",
+            "message": "Data set successfully",
+            "data": result,
+        }
+
+    except Exception as e:
+        return {
+            "routing_key": "set_data",
+            "message": f"Failed to set {var_list}: {str(e)}",
+        }
 
 
 def handle_command(plc, command, var_list=None):
-    if command == "fetch_data":
-        if var_list is None or len(var_list) == 0:
-            logger.warning("No variables specified to fetch.")
-            return {
-                "routing_key": "fetch_data",
-                "message": "No variables specified to fetch.",
-            }
-        response = fetch_plc_data(plc, var_list)
-    else:
-        logger.warning(f"Unknown command received: {command}")
-        response = {"message": "Unknown command"}
+    if not var_list:
+        logger.warning("No variables specified to fetch.")
+        return {
+            "routing_key": command,
+            "message": "No variables specified to fetch.",
+        }
 
-    return response
+    commands = {
+        "fetch_data": fetch_plc_data,
+        "set_data": set_plc_data,
+    }
 
+    if command in commands:
+        return commands[command](plc, var_list)
+
+    logger.warning(f"Unknown command received: {command}")
+    return {"message": "Unknown command"}
 
 async def main(host="127.0.0.1", port=8888):
     server = await asyncio.start_server(handle_client, host, port)

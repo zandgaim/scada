@@ -90,7 +90,7 @@ defmodule Scada.DataManager do
         status_indicator: status,
         items:
           Enum.map(items, fn {label, key, type, value} ->
-            {label, key, type, value}
+            {label, key, type, number_format(value)}
           end)
       }
     end)
@@ -101,7 +101,7 @@ defmodule Scada.DataManager do
       updated_items =
         Enum.map(container.items, fn {label, key, type, value} ->
           new_value = Map.get(new_data, key, value)
-          {label, key, type, new_value}
+          {label, key, type, number_format(new_value)}
         end)
 
       %{container | items: updated_items}
@@ -112,5 +112,12 @@ defmodule Scada.DataManager do
     Enum.reduce(data, %{}, fn %{title: title} = map, acc ->
       Map.put(acc, title, Map.delete(map, :title))
     end)
+  end
+
+  defp number_format(value) do
+    case value do
+      v when is_float(v) -> Float.round(v, 3)
+      _ -> value
+    end
   end
 end

@@ -29,7 +29,9 @@ defmodule ScadaWeb.Pages.ScadaLive do
        containers: get_containers(),
        selected_container: nil,
        fetch_interval: "2",
-       selected_label: nil
+       selected_label: nil,
+       config_mode: false,
+       edited_values: %{}
      )}
   end
 
@@ -60,7 +62,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
           </form>
         </div>
       </header>
-      
+
     <!-- Main Content -->
       <main class="flex flex-col items-center mt-4 px-6">
         <!-- Status Section -->
@@ -72,7 +74,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
           tcp_status={@tcp_status}
           tcp_message={@tcp_message}
         />
-        
+
     <!-- Containers -->
         <.live_component id="containers_main" module={ContainerComponent} containers={@containers} />
 
@@ -83,9 +85,10 @@ defmodule ScadaWeb.Pages.ScadaLive do
             container_name={@selected_container}
             items={@selected_items}
             selected_label={@selected_label}
+            config_mode={false}
           />
         <% end %>
-        
+
     <!-- Form Section -->
         <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
           <.form
@@ -108,7 +111,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
                 class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
               />
             </div>
-            
+
     <!-- Query Button -->
             <button
               type="submit"
@@ -129,7 +132,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
     {:noreply, assign(socket, selected_container: container_id, selected_items: items)}
   end
 
-  def handle_info({:hide_table}, socket) do
+  def handle_event("hide_table", _, socket) do
     {:noreply, assign(socket, selected_container: nil, selected_items: nil)}
   end
 
@@ -158,6 +161,27 @@ defmodule ScadaWeb.Pages.ScadaLive do
     else
       {:noreply, assign(socket, message: "Field name cannot be empty.")}
     end
+  end
+
+  def handle_event("edit_data", %{"data" => new_data}, socket) do
+
+    updated_values = Map.merge(socket.assigns.edited_values, new_data)
+    IO.puts("ACHTUNG new_data = #{inspect(new_data)}")
+
+    {:noreply, assign(socket, edited_values: updated_values)}
+  end
+
+  def handle_event("set_data", _, socket) do
+    converted_data =
+      socket.assigns.edited_values
+      |> Enum.map(fn {key, value} -> {key, parse_float(value)} end)
+      |> Enum.into(%{})
+
+    IO.inspect(converted_data, label: "Converted Data Before Injection")
+
+    Scada.PythonPort.set_data(converted_data)
+
+    {:noreply, assign(socket, edited_values: %{})}
   end
 
   def handle_info({:update_containers, containers}, socket) do
@@ -196,4 +220,14 @@ defmodule ScadaWeb.Pages.ScadaLive do
       Map.put(acc, title, Map.delete(map, :title))
     end)
   end
+
+  defp parse_float(value) when is_binary(value) do
+    case Float.parse(value) do
+      {num, ""} -> num
+      _ -> 0.0
+    end
+  end
+
+  defp parse_float(value) when is_integer(value), do: value * 1.0  # Convert integer to float
+  defp parse_float(value) when is_float(value), do: value  # Keep floats as is
 end
