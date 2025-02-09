@@ -2,6 +2,9 @@ defmodule Scada.DataManager do
   use GenServer
   require Logger
 
+  alias Scada.ContainersData
+  alias Scada.PythonPort
+
   @default_interval 2_000
 
   def start_link(_) do
@@ -12,8 +15,16 @@ defmodule Scada.DataManager do
     GenServer.cast(__MODULE__, {:store_data, data})
   end
 
-  def update_interval(interval) do
+  def set_data(data) do
+    GenServer.cast(__MODULE__, {:set_data, data})
+  end
+
+  def update_interval(interval) when interval in [1, 2, 5] do
     GenServer.cast(__MODULE__, {:update_interval, interval * 1000})
+  end
+
+  def update_interval(_) do
+    :ignore
   end
 
   def init(:ok) do
@@ -28,7 +39,7 @@ defmodule Scada.DataManager do
     |> Enum.each(fn {_key, params} ->
       params
       |> Map.values()
-      |> Scada.PythonPort.fetch_data()
+      |> PythonPort.fetch_data()
     end)
 
     schedule_fetch(state.interval)
@@ -52,6 +63,16 @@ defmodule Scada.DataManager do
     {:noreply, new_state}
   end
 
+  def handle_cast({:set_data, data}, state) do
+    converted_data =
+      data
+      |> Enum.map(fn {key, value} -> {key, parse_float(value)} end)
+      |> Enum.into(%{})
+
+    PythonPort.set_data(converted_data)
+    {:noreply, state}
+  end
+
   def handle_cast({:update_interval, interval}, state) do
     new_state = %{state | interval: interval}
 
@@ -71,7 +92,7 @@ defmodule Scada.DataManager do
   end
 
   def get_parameter_map do
-    Scada.ContainersData.get_containers()
+    ContainersData.get_containers()
     |> Enum.reduce(%{}, fn container, acc ->
       Map.put(
         acc,
@@ -83,7 +104,7 @@ defmodule Scada.DataManager do
   end
 
   defp initial_state do
-    Scada.ContainersData.get_containers()
+    ContainersData.get_containers()
     |> Enum.map(fn %{title: title, status_indicator: status, items: items} ->
       %{
         title: title,
@@ -120,4 +141,14 @@ defmodule Scada.DataManager do
       _ -> value
     end
   end
+
+  defp parse_float(value) when is_binary(value) do
+    case Float.parse(value) do
+      {num, ""} -> num
+      _ -> 0.0
+    end
+  end
+
+  defp parse_float(value) when is_integer(value), do: value * 1.0
+  defp parse_float(value) when is_float(value), do: value
 end

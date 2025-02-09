@@ -5,6 +5,9 @@ defmodule ScadaWeb.Pages.ScadaLive do
 
   alias Phoenix.PubSub
 
+  alias Scada.ContainersData
+  alias Scada.DataManager
+
   alias ScadaWeb.Components.{
     ConnectionStatusComponent,
     ContainerComponent,
@@ -62,7 +65,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
           </form>
         </div>
       </header>
-
+      
     <!-- Main Content -->
       <main class="flex flex-col items-center mt-4 px-6">
         <!-- Status Section -->
@@ -74,7 +77,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
           tcp_status={@tcp_status}
           tcp_message={@tcp_message}
         />
-
+        
     <!-- Containers -->
         <.live_component id="containers_main" module={ContainerComponent} containers={@containers} />
 
@@ -87,7 +90,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
             selected_label={@selected_label}
           />
         <% end %>
-
+        
     <!-- Form Section -->
         <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
           <.form
@@ -110,7 +113,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
                 class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
               />
             </div>
-
+            
     <!-- Query Button -->
             <button
               type="submit"
@@ -142,7 +145,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
   def handle_event("update_interval", %{"fetch_interval" => fetch_interval}, socket) do
     fetch_interval
     |> String.to_integer()
-    |> Scada.DataManager.update_interval()
+    |> DataManager.update_interval()
 
     {:noreply, assign(socket, fetch_interval: fetch_interval)}
   end
@@ -163,22 +166,14 @@ defmodule ScadaWeb.Pages.ScadaLive do
   end
 
   def handle_event("edit_data", %{"data" => new_data}, socket) do
-
     updated_values = Map.merge(socket.assigns.edited_values, new_data)
-    IO.puts("ACHTUNG new_data = #{inspect(new_data)}")
 
     {:noreply, assign(socket, edited_values: updated_values)}
   end
 
   def handle_event("set_data", _, socket) do
-    converted_data =
-      socket.assigns.edited_values
-      |> Enum.map(fn {key, value} -> {key, parse_float(value)} end)
-      |> Enum.into(%{})
-
-    IO.inspect(converted_data, label: "Converted Data Before Injection")
-
-    Scada.PythonPort.set_data(converted_data)
+    data = socket.assigns.edited_values
+    DataManager.set_data(data)
 
     {:noreply, assign(socket, edited_values: %{})}
   end
@@ -214,19 +209,9 @@ defmodule ScadaWeb.Pages.ScadaLive do
   end
 
   defp get_containers do
-    Scada.ContainersData.get_containers()
+    ContainersData.get_containers()
     |> Enum.reduce(%{}, fn %{title: title} = map, acc ->
       Map.put(acc, title, Map.delete(map, :title))
     end)
   end
-
-  defp parse_float(value) when is_binary(value) do
-    case Float.parse(value) do
-      {num, ""} -> num
-      _ -> 0.0
-    end
-  end
-
-  defp parse_float(value) when is_integer(value), do: value * 1.0  # Convert integer to float
-  defp parse_float(value) when is_float(value), do: value  # Keep floats as is
 end

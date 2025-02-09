@@ -2,6 +2,9 @@ defmodule Scada.PythonPort do
   use GenServer
   require Logger
 
+  alias Scada.DataManager
+  alias Scada.PubSub
+
   @tcp_host Application.compile_env(:scada, :tcp_host)
   @tcp_port Application.compile_env(:scada, :tcp_port)
   @ads_service Application.compile_env(:scada, :ads_service)
@@ -171,7 +174,7 @@ defmodule Scada.PythonPort do
 
   defp handle_routing_key(_socket, "fetch_data", %{"message" => message, "data" => data}, state) do
     new_state = %{state | message: message, data: data}
-    Scada.DataManager.store_data(data)
+    DataManager.store_data(data)
     broadcast(new_state)
     Logger.info("Fetch data response: #{message}, data: #{inspect(data)}")
     {:noreply, new_state}
@@ -266,7 +269,7 @@ defmodule Scada.PythonPort do
     }
 
     Phoenix.PubSub.broadcast(
-      Scada.PubSub,
+      PubSub,
       "scada_status",
       attrs
     )
