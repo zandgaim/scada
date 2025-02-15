@@ -72,7 +72,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
           </form>
         </div>
       </header>
-
+      
     <!-- Main Content -->
       <main class="flex flex-col items-center mt-4 px-6">
         <!-- Status Section -->
@@ -84,7 +84,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
           tcp_status={@tcp_status}
           tcp_message={@tcp_message}
         />
-
+        
     <!-- Containers -->
         <.live_component id="containers_main" module={ContainerComponent} containers={@containers} />
 
@@ -98,7 +98,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
             general_message={@general_message}
           />
         <% end %>
-
+        
     <!-- Form Section -->
         <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
           <.form
@@ -121,7 +121,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
                 class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
               />
             </div>
-
+            
     <!-- Query Button -->
             <button
               type="submit"

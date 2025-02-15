@@ -107,10 +107,9 @@ defmodule Scada.DataManager do
 
   defp initial_state do
     ContainersData.get_containers()
-    |> Enum.map(fn %{title: title, status_indicator: status, items: items} ->
+    |> Enum.map(fn %{title: title, items: items} ->
       %{
         title: title,
-        status_indicator: status,
         items:
           Enum.map(items, fn {label, key, type, value} ->
             {label, key, type, number_format(value)}

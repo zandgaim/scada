@@ -35,18 +35,16 @@ defmodule ScadaWeb.Components.ContainerComponent do
               />
             </div>
 
-            <%= if container.status_indicator do %>
-              <div class="mt-2">
-                <div class={"w-3 h-3 rounded-full #{status_class(container.status_indicator)}"}></div>
-              </div>
-            <% end %>
+            <div class="mt-2">
+              <div class={"w-3 h-3 rounded-full #{status_class(container)}"}></div>
+            </div>
           </div>
 
           <div class="flex-grow">
             <h3 class="text-xl font-bold text-white">{normalize_string(title) || "Untitled"}</h3>
 
             <div class="grid grid-cols-2 gap-y-3 text-m">
-              <%= for {label, _, symb, value} <- container.items do %>
+              <%= for {label, _, symb, value} <- Enum.take(container.items, 4) do %>
                 <div class="col-span-1 text-gray-400">{label}</div>
 
                 <div class="col-span-1 text-right font-semibold text-gray-100">
@@ -102,6 +100,21 @@ defmodule ScadaWeb.Components.ContainerComponent do
     {top, left}
   end
 
-  defp status_class("Operational"), do: "bg-green-500"
-  defp status_class(_), do: "bg-red-500"
+  defp get_connection(data) do
+    data.items
+    |> Enum.find(fn {label, _, _, _} -> label == "Connections [true/false]" end)
+    |> case do
+      {_, _, _, value} -> value
+      nil -> nil
+    end
+  end
+
+  defp status_class(data) do
+    case get_connection(data) do
+      true ->
+        "bg-green-500"
+      _ ->
+        "bg-red-500"
+    end
+  end
 end

@@ -58,7 +58,7 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
             <tbody>
               <%= for {label, key, unit, value} <- @items do %>
                 <%= cond do %>
-                  <% @config_mode and String.contains?(key, "Main.") -> %>
+                  <% @config_mode and String.contains?(key, "_set") -> %>
                     <tr class="border-b border-gray-700">
                       <td class="py-2 px-4 text-gray-300">{label}</td>
                       <td class="py-2 px-4">
@@ -67,6 +67,7 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
                             type="number"
                             name={"data[#{key}]"}
                             phx-change="edit_data"
+                            value={Map.get(@edited_values, key, value)}
                             class="bg-gray-800 text-white border border-gray-600 p-1 rounded w-full"
                           />
                         </form>
@@ -78,7 +79,7 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
                         <% end %>
                       </td>
                     </tr>
-                  <% !@config_mode -> %>
+                  <% !@config_mode and String.contains?(key, "_read") -> %>
                     <tr class="border-b border-gray-700">
                       <td class="py-2 px-4 text-gray-300">{label}</td>
                       <td class="py-2 px-4">
