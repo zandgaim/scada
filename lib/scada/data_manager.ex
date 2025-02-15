@@ -5,6 +5,8 @@ defmodule Scada.DataManager do
   alias Scada.ContainersData
   alias Scada.PythonPort
 
+  @scada_transport "scada_pub_sub"
+  @update_containers :update_containers
   @default_interval 2_000
 
   def start_link(_) do
@@ -88,7 +90,7 @@ defmodule Scada.DataManager do
   end
 
   defp broadcast_data(data) do
-    Phoenix.PubSub.broadcast(Scada.PubSub, "scada_status", {:update_containers, data})
+    Phoenix.PubSub.broadcast(Scada.PubSub, @scada_transport, {@update_containers, data})
   end
 
   def get_parameter_map do

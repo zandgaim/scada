@@ -5,6 +5,10 @@ defmodule Scada.PythonPort do
   alias Scada.DataManager
   alias Scada.PubSub
 
+  @scada_transport "scada_pub_sub"
+  @scada_status :scada_status
+  @set_data_status :set_data_status
+
   @tcp_host Application.compile_env(:scada, :tcp_host)
   @tcp_port Application.compile_env(:scada, :tcp_port)
   @ads_service Application.compile_env(:scada, :ads_service)
@@ -21,7 +25,7 @@ defmodule Scada.PythonPort do
   end
 
   def set_data(data) do
-    GenServer.call(__MODULE__, {:set_data, data})
+    GenServer.cast(__MODULE__, {:set_data, data})
   end
 
   def start_link(_) do
@@ -41,7 +45,7 @@ defmodule Scada.PythonPort do
       tcp_message: ""
     }
 
-    broadcast(state)
+    broadcast(@scada_status, state)
     connect()
     {:ok, state}
   end
@@ -77,7 +81,7 @@ defmodule Scada.PythonPort do
 
       {:error, _reason} ->
         new_state = %{state | message: "Invalid data from Python service"}
-        broadcast(new_state)
+        broadcast(@scada_status, new_state)
         Logger.error("Invalid JSON data received from Python service")
         {:noreply, new_state}
     end
@@ -97,7 +101,7 @@ defmodule Scada.PythonPort do
         tcp_message: "Retrying connection"
     }
 
-    broadcast(new_state)
+    broadcast(@scada_status, new_state)
     connect()
     Logger.warning("TCP connection closed. Retrying...")
     {:noreply, new_state}
@@ -129,13 +133,6 @@ defmodule Scada.PythonPort do
     {:reply, %{"status" => "fetching", "message" => "Request sent to fetch"}, state}
   end
 
-  def handle_call({:set_data, data}, _from, %{connected: true, socket: socket} = state) do
-    Logger.info("Setting data..")
-    tcp_send(socket, "set_data", data)
-
-    {:reply, %{"status" => "setting", "message" => "Request to set"}, state}
-  end
-
   def handle_call(:get_state, _from, state) do
     attrs = %{
       status: state.status,
@@ -148,6 +145,19 @@ defmodule Scada.PythonPort do
     {:reply, attrs, state}
   end
 
+  def handle_cast({:set_data, data}, %{connected: true, socket: socket} = state) do
+    Logger.info("Setting data..")
+    tcp_send(socket, "set_data", data)
+
+    {:noreply, state}
+  end
+
+  def handle_cast({:set_data, data}, %{connected: false, socket: socket} = state) do
+    Logger.info("Trying to set_data while not connected to Python service")
+    broadcast(@set_data_status, "Not connected to Python service")
+    {:noreply, state}
+  end
+
   defp handle_routing_key(
          _socket,
          "connect",
@@ -155,7 +165,7 @@ defmodule Scada.PythonPort do
          state
        ) do
     new_state = %{state | connected: true, status: "Connected", message: message}
-    broadcast(new_state)
+    broadcast(@scada_status, new_state)
     Logger.info("Connection established successfully: #{message}")
     {:noreply, new_state}
   end
@@ -167,7 +177,7 @@ defmodule Scada.PythonPort do
          state
        ) do
     new_state = %{state | connected: false, message: error_message}
-    broadcast(new_state)
+    broadcast(@scada_status, new_state)
     Logger.error("Error during connection: #{error_message}")
     {:noreply, new_state}
   end
@@ -175,7 +185,7 @@ defmodule Scada.PythonPort do
   defp handle_routing_key(_socket, "fetch_data", %{"message" => message, "data" => data}, state) do
     new_state = %{state | message: message, data: data}
     DataManager.store_data(data)
-    broadcast(new_state)
+    broadcast(@scada_status, new_state)
     Logger.info("Fetch data response: #{message}, data: #{inspect(data)}")
     {:noreply, new_state}
   end
@@ -192,22 +202,22 @@ defmodule Scada.PythonPort do
       }
 
       connect()
-      broadcast(new_state)
+      broadcast(@scada_status, new_state)
       {:noreply, new_state}
     else
       new_state = %{state | data: nil}
-      broadcast(new_state)
+      broadcast(@scada_status, new_state)
       {:noreply, new_state}
     end
   end
 
   defp handle_routing_key(_socket, "set_data", %{"message" => message, "data" => data}, state) do
-    Logger.info("Set data response: #{message}, data: #{inspect(data)}")
+    broadcast(@set_data_status, {message, data})
     {:noreply, state}
   end
 
   defp handle_routing_key(_socket, "set_data", %{"message" => message}, state) do
-    Logger.warning("Set data response: #{message}")
+    broadcast(@set_data_status, message)
     {:noreply, state}
   end
 
@@ -220,7 +230,7 @@ defmodule Scada.PythonPort do
         message: "Unknown command: #{key}"
     }
 
-    broadcast(new_state)
+    broadcast(@scada_status, new_state)
     {:noreply, new_state}
   end
 
@@ -259,7 +269,7 @@ defmodule Scada.PythonPort do
     :gen_tcp.send(socket, message)
   end
 
-  defp broadcast(state) do
+  defp broadcast(@scada_status, state) do
     attrs = %{
       status: state.status,
       message: state.message,
@@ -270,8 +280,16 @@ defmodule Scada.PythonPort do
 
     Phoenix.PubSub.broadcast(
       PubSub,
-      "scada_status",
-      attrs
+      @scada_transport,
+      {@scada_status, attrs}
+    )
+  end
+
+  defp broadcast(@set_data_status, data) do
+    Phoenix.PubSub.broadcast(
+      PubSub,
+      @scada_transport,
+      {@set_data_status, data}
     )
   end
 end

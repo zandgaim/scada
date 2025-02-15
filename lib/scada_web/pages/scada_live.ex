@@ -14,8 +14,13 @@ defmodule ScadaWeb.Pages.ScadaLive do
     ContainerTableComponent
   }
 
+  @scada_transport "scada_pub_sub"
+  @update_containers :update_containers
+  @scada_status :scada_status
+  @set_data_status :set_data_status
+
   def mount(_params, _session, socket) do
-    PubSub.subscribe(Scada.PubSub, "scada_status")
+    PubSub.subscribe(Scada.PubSub, @scada_transport)
     state = get_state()
 
     {:ok,
@@ -34,7 +39,9 @@ defmodule ScadaWeb.Pages.ScadaLive do
        fetch_interval: "2",
        selected_label: nil,
        config_mode: false,
-       edited_values: %{}
+       edited_values: %{},
+       field_messages: %{},
+       general_message: nil
      )}
   end
 
@@ -65,7 +72,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
           </form>
         </div>
       </header>
-      
+
     <!-- Main Content -->
       <main class="flex flex-col items-center mt-4 px-6">
         <!-- Status Section -->
@@ -77,7 +84,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
           tcp_status={@tcp_status}
           tcp_message={@tcp_message}
         />
-        
+
     <!-- Containers -->
         <.live_component id="containers_main" module={ContainerComponent} containers={@containers} />
 
@@ -87,10 +94,11 @@ defmodule ScadaWeb.Pages.ScadaLive do
             id="container-table"
             container_name={@selected_container}
             items={@selected_items}
-            selected_label={@selected_label}
+            field_messages={@field_messages}
+            general_message={@general_message}
           />
         <% end %>
-        
+
     <!-- Form Section -->
         <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
           <.form
@@ -113,7 +121,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
                 class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
               />
             </div>
-            
+
     <!-- Query Button -->
             <button
               type="submit"
@@ -178,7 +186,20 @@ defmodule ScadaWeb.Pages.ScadaLive do
     {:noreply, assign(socket, edited_values: %{})}
   end
 
-  def handle_info({:update_containers, containers}, socket) do
+  def handle_info({@scada_status, attrs}, socket) do
+    {:noreply,
+     assign(socket,
+       status: attrs.status,
+       message: attrs.message,
+       last_status: attrs.status,
+       last_message: attrs.message,
+       data: attrs.data,
+       tcp_status: attrs.tcp_status,
+       tcp_message: attrs.tcp_message
+     )}
+  end
+
+  def handle_info({@update_containers, containers}, socket) do
     selected_items =
       case socket.assigns.selected_container do
         nil -> nil
@@ -188,17 +209,36 @@ defmodule ScadaWeb.Pages.ScadaLive do
     {:noreply, assign(socket, containers: containers, selected_items: selected_items)}
   end
 
-  def handle_info(state, socket) do
-    {:noreply,
-     assign(socket,
-       status: state.status,
-       message: state.message,
-       last_status: state.status,
-       last_message: state.message,
-       data: state.data,
-       tcp_status: state.tcp_status,
-       tcp_message: state.tcp_message
-     )}
+  def handle_info({@set_data_status, message}, socket) do
+    socket =
+      case message do
+        {status, details} ->
+          updated_field_messages =
+            Enum.reduce(details, socket.assigns.field_messages || %{}, fn {key, msg}, acc ->
+              Map.put(acc, key, "#{status}: #{msg}")
+            end)
+
+          Process.send_after(self(), :clear_field_messages, 3000)
+
+          socket
+          |> assign(:field_messages, updated_field_messages)
+
+        message ->
+          Process.send_after(self(), :clear_general_message, 3000)
+
+          socket
+          |> assign(:general_message, message)
+      end
+
+    {:noreply, socket}
+  end
+
+  def handle_info(:clear_field_messages, socket) do
+    {:noreply, assign(socket, :field_messages, %{})}
+  end
+
+  def handle_info(:clear_general_message, socket) do
+    {:noreply, assign(socket, :general_message, nil)}
   end
 
   defp denormalize_id(title),
