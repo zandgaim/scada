@@ -230,8 +230,10 @@ defmodule Scada.ContainersData do
           {"Connections [true/false]", "GVL_Visu.stVisu_MeterDC_AFE_read.Connection", "", "N/A"},
 
           # Set
-          {"Switch meter on/off [true/false]", "GVL_Visu.stVisu_MeterDC_AFE_set.bONOFF", "bool", "N/A"},
-          {"Reset daily energy [true/false]", "GVL_Visu.stVisu_MeterDC_AFE_set.bResetDailyEnergy", "bool", "N/A"},
+          {"Switch meter on/off [true/false]", "GVL_Visu.stVisu_MeterDC_AFE_set.bONOFF", "bool",
+           "N/A"},
+          {"Reset daily energy [true/false]", "GVL_Visu.stVisu_MeterDC_AFE_set.bResetDailyEnergy",
+           "bool", "N/A"},
 
           # Read
           {"A-phase voltage", "GVL_Visu.stVisu_AFE_read.Varms", "V", "N/A"},
@@ -243,26 +245,31 @@ defmodule Scada.ContainersData do
           {"Output active power", "GVL_Visu.stVisu_AFE_read.Pac", "w", "N/A"},
           {"Output reactive power", "GVL_Visu.stVisu_AFE_read.Qac", "var", "N/A"},
           {"On-Grid frequency", "GVL_Visu.stVisu_AFE_read.Fongrid", "Hz", "N/A"},
-          {"Max. Inverter heat sink temperature", "GVL_Visu.stVisu_AFE_read.Tempheat", "°C", "N/A"},
+          {"Max. Inverter heat sink temperature", "GVL_Visu.stVisu_AFE_read.Tempheat", "°C",
+           "N/A"},
           {"Inverter status", "GVL_Visu.stVisu_AFE_read.Status", "", "N/A"},
           {"Inverter alarms", "GVL_Visu.stVisu_AFE_read.Alarms", "", "N/A"},
           {"Inverter on/off [true/false]", "GVL_Visu.stVisu_AFE_read.InvState", "", "N/A"},
           {"Connections [true/false]", "GVL_Visu.stVisu_AFE_read.Connection", "", "N/A"},
-          {"Data mismatch with the converter", "GVL_Visu.stVisu_AFE_read.ErrorSaveParam", "", "N/A"},
+          {"Data mismatch with the converter", "GVL_Visu.stVisu_AFE_read.ErrorSaveParam", "",
+           "N/A"},
 
           # Set
           {"Switch Inverter on/off", "GVL_Visu.stVisu_AFE_set.bONOFF", "bool", "N/A"},
           {"Reset Inverter", "GVL_Visu.stVisu_AFE_set.bReset", "bool", "N/A"},
           {"OC AC protection value", "GVL_Visu.stVisu_AFE_set.rAlarm_I_conv", "A", "N/A"},
-          {"Undervoltage DC protection value", "GVL_Visu.stVisu_AFE_set.rAlarm_U_dc_L", "V", "N/A"},
-          {"Overvoltage DC protection value", "GVL_Visu.stVisu_AFE_set.rAlarm_U_dc_H", "V", "N/A"},
-          {"Undervoltage AC protection value", "GVL_Visu.stVisu_AFE_set.rAlarm_U_grid_L", "V", "N/A"},
-          {"Overvoltage AC protection value", "GVL_Visu.stVisu_AFE_set.rAlarm_U_grid_H", "V", "N/A"},
-
+          {"Undervoltage DC protection value", "GVL_Visu.stVisu_AFE_set.rAlarm_U_dc_L", "V",
+           "N/A"},
+          {"Overvoltage DC protection value", "GVL_Visu.stVisu_AFE_set.rAlarm_U_dc_H", "V",
+           "N/A"},
+          {"Undervoltage AC protection value", "GVL_Visu.stVisu_AFE_set.rAlarm_U_grid_L", "V",
+           "N/A"},
+          {"Overvoltage AC protection value", "GVL_Visu.stVisu_AFE_set.rAlarm_U_grid_H", "V",
+           "N/A"},
           {"Overtemperature value", "GVL_Visu.stVisu_AFE_set.rAlarm_Temperature", "°C", "N/A"},
           {"Reference active power value", "GVL_Visu.stVisu_AFE_set.rPref", "W", "N/A"},
           {"Reference reactive power value", "GVL_Visu.stVisu_AFE_set.rQref", "var", "N/A"},
-          {"Address IP device", "GVL_Visu.stVisu_AFE_set.IP_address", "string", "N/A"},
+          {"Address IP device", "GVL_Visu.stVisu_AFE_set.IP_address", "string", "N/A"}
         ]
       },
       %{

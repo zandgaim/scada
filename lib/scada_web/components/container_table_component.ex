@@ -63,13 +63,48 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
                       <td class="py-2 px-4 text-gray-300">{label}</td>
                       <td class="py-2 px-4">
                         <form phx-change="edit_data">
-                          <input
-                            type="number"
-                            name={"data[#{key}]"}
-                            phx-change="edit_data"
-                            value={Map.get(@edited_values, key, value)}
-                            class="bg-gray-800 text-white border border-gray-600 p-1 rounded w-full"
-                          />
+                          {IO.puts("ACHTUNG #{inspect(key)}: #{inspect(value)}")}
+                          <%= cond do %>
+                            <% unit == "bool" -> %>
+                              <select
+                                name={"data[#{key}]"}
+                                class="bg-gray-800 text-white border border-gray-600 p-1 rounded w-full"
+                                phx-change="edit_data"
+                              >
+                                <option value="true" selected={to_string(value) == "true" || nil}>
+                                  true
+                                </option>
+                                <option value="false" selected={to_string(value) == "false" || nil}>
+                                  false
+                                </option>
+                              </select>
+                            <% unit == "int" -> %>
+                              <input
+                                type="number"
+                                name={"data[#{key}]"}
+                                phx-change="edit_data"
+                                value={Map.get(@edited_values, key, value)}
+                                class="bg-gray-800 text-white border border-gray-600 p-1 rounded w-full"
+                                step="1"
+                              />
+                            <% unit == "string" -> %>
+                              <input
+                                type="text"
+                                name={"data[#{key}]"}
+                                phx-change="edit_data"
+                                value={Map.get(@edited_values, key, value)}
+                                class="bg-gray-800 text-white border border-gray-600 p-1 rounded w-full"
+                              />
+                            <% true -> %>
+                              <input
+                                type="number"
+                                name={"data[#{key}]"}
+                                phx-change="edit_data"
+                                value={Map.get(@edited_values, key, value)}
+                                class="bg-gray-800 text-white border border-gray-600 p-1 rounded w-full"
+                                step="0.01"
+                              />
+                          <% end %>
                         </form>
                         <!-- Status Message Below the Field -->
                         <%= if Map.has_key?(@field_messages, key) do %>
@@ -118,12 +153,10 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
   end
 
   def update(assigns, socket) do
-    new_items = if socket.assigns[:config_mode], do: socket.assigns.items, else: assigns.items
-
     {:ok,
      assign(socket,
        container_name: assigns.container_name,
-       items: new_items,
+       items: assigns.items,
        config_mode: socket.assigns[:config_mode] || false,
        edited_values: socket.assigns[:edited_values] || %{},
        field_messages: assigns[:field_messages] || %{},
