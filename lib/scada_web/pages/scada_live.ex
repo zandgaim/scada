@@ -173,7 +173,12 @@ defmodule ScadaWeb.Pages.ScadaLive do
     end
   end
 
-  def handle_event("edit_data", %{"data" => new_data}, socket) do
+  def handle_event("edit_data", %{"data" => data}, socket) do
+    {key_with_unit, value} = Enum.at(data, 0)
+    [key, unit] = String.split(key_with_unit, ":", parts: 2)
+
+    new_data = %{key => {value, unit}}
+
     updated_values = Map.merge(socket.assigns.edited_values, new_data)
 
     {:noreply, assign(socket, edited_values: updated_values)}

@@ -7,6 +7,7 @@ defmodule Scada.DataManager do
 
   @scada_transport "scada_pub_sub"
   @update_containers :update_containers
+  @set_data_status :set_data_status
   @default_interval 2_000
 
   def start_link(_) do
@@ -53,7 +54,7 @@ defmodule Scada.DataManager do
   def handle_info(:broadcast_data, state) do
     state.data
     |> data_to_map()
-    |> broadcast_data()
+    |> broadcast(@update_containers)
 
     {:noreply, state}
   end
@@ -66,12 +67,19 @@ defmodule Scada.DataManager do
   end
 
   def handle_cast({:set_data, data}, state) do
-    converted_data =
-      data
-      |> Enum.map(fn {key, value} -> {key, parse_float(value)} end)
-      |> Enum.into(%{})
+    try do
+      converted_data =
+        data
+        |> Enum.map(fn {key, value} -> {key, parse_value(value)} end)
+        |> Enum.into(%{})
 
-    PythonPort.set_data(converted_data)
+      PythonPort.set_data(converted_data)
+    rescue
+      exception ->
+        "⚠️ Invalid data"
+        |> broadcast(@set_data_status)
+    end
+
     {:noreply, state}
   end
 
@@ -89,8 +97,20 @@ defmodule Scada.DataManager do
     Process.send_after(self(), :broadcast_data, interval)
   end
 
-  defp broadcast_data(data) do
-    Phoenix.PubSub.broadcast(Scada.PubSub, @scada_transport, {@update_containers, data})
+  defp broadcast(data, @update_containers) do
+    Phoenix.PubSub.broadcast(
+      Scada.PubSub,
+      @scada_transport,
+      {@update_containers, data}
+    )
+  end
+
+  defp broadcast(data, @set_data_status) do
+    Phoenix.PubSub.broadcast(
+      Scada.PubSub,
+      @scada_transport,
+      {@set_data_status, data}
+    )
   end
 
   def get_parameter_map do
@@ -143,13 +163,23 @@ defmodule Scada.DataManager do
     end
   end
 
-  defp parse_float(value) when is_binary(value) do
-    case Float.parse(value) do
-      {num, ""} -> num
-      _ -> 0.0
-    end
+  defp parse_value({value, "double"}) when is_binary(value) do
+    {double_value, ""} =
+      value
+      |> Float.parse()
+
+    double_value
   end
 
-  defp parse_float(value) when is_integer(value), do: value * 1.0
-  defp parse_float(value) when is_float(value), do: value
+  defp parse_value({"true", "bool"}), do: true
+  defp parse_value({"false", "bool"}), do: false
+  defp parse_value({value, "string"}) when is_binary(value), do: value
+
+  defp parse_value({value, "int"}) when is_binary(value) do
+    {int_value, ""} =
+      value
+      |> Integer.parse()
+
+    int_value
+  end
 end

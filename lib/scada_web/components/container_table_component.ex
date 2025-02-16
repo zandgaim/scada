@@ -63,11 +63,10 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
                       <td class="py-2 px-4 text-gray-300">{label}</td>
                       <td class="py-2 px-4">
                         <form phx-change="edit_data">
-                          {IO.puts("ACHTUNG #{inspect(key)}: #{inspect(value)}")}
                           <%= cond do %>
                             <% unit == "bool" -> %>
                               <select
-                                name={"data[#{key}]"}
+                                name={"data[#{key}:#{unit}]"}
                                 class="bg-gray-800 text-white border border-gray-600 p-1 rounded w-full"
                                 phx-change="edit_data"
                               >
@@ -81,7 +80,7 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
                             <% unit == "int" -> %>
                               <input
                                 type="number"
-                                name={"data[#{key}]"}
+                                name={"data[#{key}:#{unit}]"}
                                 phx-change="edit_data"
                                 value={Map.get(@edited_values, key, value)}
                                 class="bg-gray-800 text-white border border-gray-600 p-1 rounded w-full"
@@ -90,20 +89,23 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
                             <% unit == "string" -> %>
                               <input
                                 type="text"
-                                name={"data[#{key}]"}
+                                name={"data[#{key}:#{unit}]"}
                                 phx-change="edit_data"
                                 value={Map.get(@edited_values, key, value)}
                                 class="bg-gray-800 text-white border border-gray-600 p-1 rounded w-full"
                               />
                             <% true -> %>
-                              <input
-                                type="number"
-                                name={"data[#{key}]"}
-                                phx-change="edit_data"
-                                value={Map.get(@edited_values, key, value)}
-                                class="bg-gray-800 text-white border border-gray-600 p-1 rounded w-full"
-                                step="0.01"
-                              />
+                              <div class="flex items-center space-x-2">
+                                <input
+                                  type="number"
+                                  name={"data[#{key}:double]"}
+                                  phx-change="edit_data"
+                                  value={Map.get(@edited_values, key, value)}
+                                  class="bg-gray-800 text-white border border-gray-600 p-1 rounded w-full"
+                                  step="0.1"
+                                />
+                                <span class="text-gray-400 text-sm">{unit}</span>
+                              </div>
                           <% end %>
                         </form>
                         <!-- Status Message Below the Field -->
