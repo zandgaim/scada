@@ -42,7 +42,8 @@ defmodule Scada.PythonPort do
       status: "Waiting",
       message: "Not connected to machine",
       tcp_status: "Not established",
-      tcp_message: ""
+      tcp_message: "",
+      tcp_buffer: ""
     }
 
     broadcast(@scada_status, state)
@@ -74,16 +75,29 @@ defmodule Scada.PythonPort do
     end
   end
 
-  def handle_info({:tcp, socket, data}, %{socket: socket} = state) do
-    case Jason.decode(data) do
-      {:ok, %{"routing_key" => routing_key} = response} ->
-        handle_routing_key(socket, routing_key, response, state)
+  def handle_info({:tcp, socket, data}, %{tcp_buffer: buffer} = state) do
+    new_buffer = buffer <> data
+    {decoded_messages, remaining_buffer} = extract_complete_json(new_buffer)
 
-      {:error, _reason} ->
-        new_state = %{state | message: "Invalid data from Python service"}
-        broadcast(@scada_status, new_state)
-        Logger.error("Invalid JSON data received from Python service")
-        {:noreply, new_state}
+    case decoded_messages do
+      [] ->
+        {:noreply, %{state | tcp_buffer: remaining_buffer}}
+
+      messages ->
+        case Jason.decode(messages) do
+          {:ok, %{"routing_key" => routing_key} = response} ->
+            {:noreply,
+             handle_routing_key(socket, routing_key, response, %{
+               state
+               | tcp_buffer: remaining_buffer
+             })}
+
+          {:error, reason} ->
+            updated_state = %{state | message: "Invalid data from Python service", tcp_buffer: ""}
+            broadcast(@scada_status, updated_state)
+            Logger.error("JSON decoding error: #{inspect(reason)} | Data: #{messages}")
+            {:noreply, updated_state}
+        end
     end
   end
 
@@ -167,7 +181,7 @@ defmodule Scada.PythonPort do
     new_state = %{state | connected: true, status: "Connected", message: message}
     broadcast(@scada_status, new_state)
     Logger.info("Connection established successfully: #{message}")
-    {:noreply, new_state}
+    new_state
   end
 
   defp handle_routing_key(
@@ -179,7 +193,7 @@ defmodule Scada.PythonPort do
     new_state = %{state | connected: false, message: error_message}
     broadcast(@scada_status, new_state)
     Logger.error("Error during connection: #{error_message}")
-    {:noreply, new_state}
+    new_state
   end
 
   defp handle_routing_key(_socket, "fetch_data", %{"message" => message, "data" => data}, state) do
@@ -187,7 +201,7 @@ defmodule Scada.PythonPort do
     DataManager.store_data(data)
     broadcast(@scada_status, new_state)
     Logger.info("Fetch data response: #{message}, data: #{inspect(data)}")
-    {:noreply, new_state}
+    new_state
   end
 
   defp handle_routing_key(_socket, "fetch_data", %{"message" => message}, state) do
@@ -203,22 +217,22 @@ defmodule Scada.PythonPort do
 
       connect()
       broadcast(@scada_status, new_state)
-      {:noreply, new_state}
+      new_state
     else
       new_state = %{state | data: nil}
       broadcast(@scada_status, new_state)
-      {:noreply, new_state}
+      new_state
     end
   end
 
   defp handle_routing_key(_socket, "set_data", %{"message" => message, "data" => data}, state) do
     broadcast(@set_data_status, {message, data})
-    {:noreply, state}
+    state
   end
 
   defp handle_routing_key(_socket, "set_data", %{"message" => message}, state) do
     broadcast(@set_data_status, message)
-    {:noreply, state}
+    state
   end
 
   defp handle_routing_key(_socket, key, %{"message" => message}, state) do
@@ -291,5 +305,21 @@ defmodule Scada.PythonPort do
       @scada_transport,
       {@set_data_status, data}
     )
+  end
+
+  defp extract_complete_json(buffer) do
+    messages = String.split(buffer, "\n", trim: true)
+
+    case List.pop_at(messages, -1) do
+      {nil, _} ->
+        {[], buffer}
+
+      {last, rest} ->
+        if String.ends_with?(buffer, "\n") do
+          {messages, ""}
+        else
+          {rest, last}
+        end
+    end
   end
 end

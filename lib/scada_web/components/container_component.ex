@@ -71,23 +71,23 @@ defmodule ScadaWeb.Components.ContainerComponent do
   defp position_coordinates(id) do
     position_map = %{
       "EV_Charger" => {0, 0},
-      "DC_Converter_4" => {0, 1},
-      "DC_Converter_5" => {0, 2},
+      "DC_Converter_1" => {0, 1},
+      "DC_Converter_2" => {0, 2},
       "PV" => {0, 3},
       # ---------------------------
       "RG_1" => {1, 0},
       "Weather_Station" => {1, 1},
-      "DC_Converter_1" => {1, 2},
+      "DC_Converter_3" => {1, 2},
       "Li-Ion_Battery" => {1, 3},
       # ---------------------------
       "Self_Power" => {2, 0},
       "RG_2" => {2, 1},
-      "DC_Converter_2" => {2, 2},
+      "DC_Converter_4" => {2, 2},
       "AGM_Battery" => {2, 3},
       # ---------------------------
       "AC_Grid" => {3, 0},
       "AC/DC_Converter" => {3, 1},
-      "DC_Converter_3" => {3, 2},
+      "DC_Converter_5" => {3, 2},
       "SCAP_Battery" => {3, 3}
     }
 
@@ -113,6 +113,7 @@ defmodule ScadaWeb.Components.ContainerComponent do
     case get_connection(data) do
       true ->
         "bg-green-500"
+
       _ ->
         "bg-red-500"
     end
