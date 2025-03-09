@@ -74,7 +74,11 @@ defmodule ScadaWeb.Components.ContainerComponent do
   defp normalize_id(title),
     do: title |> to_string() |> String.replace(" ", "_")
 
-  defp normalize_string(id), do: id |> String.replace(~r/\d|\//, "")
+    defp normalize_string(id) do
+      id
+      |> String.replace(~r/\d|\//, "")
+      |> String.downcase()
+    end
 
   defp position_coordinates(id) do
     position_map = %{
