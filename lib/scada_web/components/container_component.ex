@@ -20,37 +20,45 @@ defmodule ScadaWeb.Components.ContainerComponent do
         {top, left} = position_coordinates(id) %>
         <div
           id={id}
-          class="container-box cursor-pointer"
+          class="container-box absolute cursor-pointer bg-gray-800 rounded-lg shadow-lg"
           style={"top: #{top}px; left: #{left}px; width: 350px; height: 240px;"}
           phx-click="show_table"
           phx-value-id={id}
         >
-          <div class="flex-shrink-0 flex flex-col items-center mr-4">
-            <div class="w-14 h-14 bg-gray-600 rounded-full flex items-center justify-center">
-              <img
-                src={"/images/containers/#{normalize_string(id)}.png"}
-                alt="Status Icon"
-                class="w-10 h-10 object-contain"
-                onerror="this.onerror=null; this.src='/images/default_icon.png';"
-              />
+          <div class="flex p-2">
+            <div class="flex-shrink-0 flex flex-col items-center mr-3">
+              <div class="w-14 h-14 bg-gray-600 rounded-full flex items-center justify-center">
+                <img
+                  src={ScadaWeb.Endpoint.static_path("/images/containers/#{normalize_string(id)}.png")}
+                  alt="Status Icon"
+                  class="w-10 h-10 object-contain"
+                  onerror="this.onerror=null; this.src='/images/default_icon.png';"
+                />
+              </div>
+
+              <div class="mt-2">
+                <div class={"w-3 h-3 rounded-full #{status_class(container)}"}></div>
+              </div>
             </div>
 
-            <div class="mt-2">
-              <div class={"w-3 h-3 rounded-full #{status_class(container)}"}></div>
-            </div>
-          </div>
+            <div class="flex-grow">
+              <h3 class="text-xl font-bold text-white mb-2">
+                {normalize_string(title) || "Untitled"}
+              </h3>
 
-          <div class="flex-grow">
-            <h3 class="text-xl font-bold text-white">{normalize_string(title) || "Untitled"}</h3>
+              <div class="grid grid-cols-2 gap-y-2 text-sm">
+                <%= for {label, _, symb, value} <- Enum.take(container.items, 3) do %>
+                  <div class="col-span-2 border-t border-gray-600"></div>
 
-            <div class="grid grid-cols-2 gap-y-3 text-m">
-              <%= for {label, _, symb, value} <- Enum.take(container.items, 4) do %>
-                <div class="col-span-1 text-gray-400">{label}</div>
-
-                <div class="col-span-1 text-right font-semibold text-gray-100">
-                  {value || "N/A"} {symb}
-                </div>
-              <% end %>
+                  <div class="col-span-1 text-gray-400 font-semibold text-wrap flex items-center">
+                    <span class="w-2 h-2 rounded-full mr-1"></span>
+                    {label}
+                  </div>
+                  <div class="col-span-1 text-right font-semibold text-gray-200 text-wrap">
+                    {value || "No data"} {if symb, do: symb, else: ""}
+                  </div>
+                <% end %>
+              </div>
             </div>
           </div>
         </div>
