@@ -25,6 +25,7 @@ config :scada, ScadaWeb.Endpoint,
     layout: false
   ],
   pubsub_server: Scada.PubSub,
+  cache_static_manifest: "priv/static/cache_manifest.json",
   live_view: [signing_salt: "B96JDybz"]
 
 config :scada, Scada.Mailer, adapter: Swoosh.Adapters.Local

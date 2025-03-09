@@ -21,9 +21,10 @@ RUN mix local.hex --force && \
 # Copy app files to the container
 COPY . .
 
-# Install app dependencies and build the release
+# Install dependencies and build assets
 RUN mix deps.get --only prod && \
     mix assets.deploy && \
+    mix phx.digest && \
     mix release
 
 # Create a Python virtual environment and install pyads
@@ -48,6 +49,9 @@ EXPOSE $PORT
 
 # Copy the release built in the first stage
 COPY --from=builder /app/_build/prod/rel/scada /app
+
+# Copy digested assets to the final image
+COPY --from=builder /app/priv/static /app/priv/static
 
 # Entrypoint script to ensure all runtime variables are set
 COPY priv/scripts/entrypoint.sh /app/entrypoint.sh
