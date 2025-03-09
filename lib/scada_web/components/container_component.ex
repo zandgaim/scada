@@ -27,23 +27,21 @@ defmodule ScadaWeb.Components.ContainerComponent do
         >
           <div class="flex p-2">
             <div class="flex-shrink-0 flex flex-col items-center mr-3">
-              <div class="w-14 h-14 bg-gray-600 rounded-full flex items-center justify-center">
+              <div class={"w-14 h-14 #{status_class(container)} rounded-full flex items-center justify-center"}>
                 <img
-                  src={ScadaWeb.Endpoint.static_path("/images/containers/#{normalize_string(id)}.png")}
+                  src={
+                    ScadaWeb.Endpoint.static_path("/images/containers/#{normalize_string(id)}.png")
+                  }
                   alt="Status Icon"
                   class="w-10 h-10 object-contain"
                   onerror="this.onerror=null; this.src='/images/default_icon.png';"
                 />
               </div>
-
-              <div class="mt-2">
-                <div class={"w-3 h-3 rounded-full #{status_class(container)}"}></div>
-              </div>
             </div>
 
             <div class="flex-grow">
               <h3 class="text-xl font-bold text-white mb-2">
-                {normalize_string(title) || "Untitled"}
+                {normalize_title(title) || "Untitled"}
               </h3>
 
               <div class="grid grid-cols-2 gap-y-2 text-sm">
@@ -74,11 +72,13 @@ defmodule ScadaWeb.Components.ContainerComponent do
   defp normalize_id(title),
     do: title |> to_string() |> String.replace(" ", "_")
 
-    defp normalize_string(id) do
-      id
-      |> String.replace(~r/\d|\//, "")
-      |> String.downcase()
-    end
+  defp normalize_string(id) do
+    id
+    |> String.replace(~r/\d|\//, "")
+    |> String.downcase()
+  end
+
+  def normalize_title(title), do: title |> String.replace(~r/\d|\//, "")
 
   defp position_coordinates(id) do
     position_map = %{
@@ -124,10 +124,10 @@ defmodule ScadaWeb.Components.ContainerComponent do
   defp status_class(data) do
     case get_connection(data) do
       true ->
-        "bg-green-500"
+        "bg-[#6eB78C]"
 
       _ ->
-        "bg-red-500"
+        "bg-[#b76e79]" #6eB78C #b76e79
     end
   end
 end
