@@ -32,15 +32,18 @@ RUN python3 -m venv /opt/pyenv && \
     /opt/pyenv/bin/pip install --upgrade pip && \
     /opt/pyenv/bin/pip install pyads==3.4.2
 
-# Add the virtual environment's Python and pip to PATH
-ENV PATH="/opt/pyenv/bin:$PATH"
-
 # Stage 2: Final Runtime Image
 FROM elixir:1.15.0
 
+# Install Python and required dependencies in the final image
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip python3-venv && \
+    rm -rf /var/lib/apt/lists/*
+
 # Set runtime environment
 ENV MIX_ENV=prod \
-    PORT=4020
+    PORT=4020 \
+    PATH="/opt/pyenv/bin:$PATH"
 
 WORKDIR /app
 
@@ -52,6 +55,9 @@ COPY --from=builder /app/_build/prod/rel/scada /app
 
 # Copy digested assets to the final image
 COPY --from=builder /app/priv/static /app/priv/static
+
+# Copy the Python virtual environment from the builder stage
+COPY --from=builder /opt/pyenv /opt/pyenv
 
 # Entrypoint script to ensure all runtime variables are set
 COPY priv/scripts/entrypoint.sh /app/entrypoint.sh
