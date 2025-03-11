@@ -75,7 +75,7 @@ defmodule Scada.DataManager do
 
       PythonPort.set_data(converted_data)
     rescue
-      exception ->
+      _exception ->
         "⚠️ Invalid data"
         |> broadcast(@set_data_status)
     end

@@ -49,11 +49,11 @@ defmodule ScadaWeb.Components.ContainerComponent do
                   <div class="col-span-2 border-t border-gray-600"></div>
 
                   <div class="col-span-1 text-gray-400 font-semibold text-wrap flex items-center">
-                    <span class="w-2 h-2 rounded-full mr-1"></span>
-                    {label}
+                    <span class="w-2 h-2 rounded-full mr-1"></span> {label}
                   </div>
+
                   <div class="col-span-1 text-right font-semibold text-gray-200 text-wrap">
-                    {value || "No data"} {if symb, do: symb, else: ""}
+                    {value} {if symb, do: symb, else: ""}
                   </div>
                 <% end %>
               </div>
@@ -127,7 +127,7 @@ defmodule ScadaWeb.Components.ContainerComponent do
         "bg-[#6eB78C]"
 
       _ ->
-        "bg-[#b76e79]" #6eB78C #b76e79
+        "bg-[#b76e79]"
     end
   end
 end
