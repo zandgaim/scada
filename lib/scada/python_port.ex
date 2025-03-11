@@ -166,7 +166,7 @@ defmodule Scada.PythonPort do
     {:noreply, state}
   end
 
-  def handle_cast({:set_data, data}, %{connected: false, socket: socket} = state) do
+  def handle_cast({:set_data, _data}, %{connected: false, socket: _socket} = state) do
     Logger.info("Trying to set_data while not connected to Python service")
     broadcast(@set_data_status, "⚠️ Not connected to Python service")
     {:noreply, state}
