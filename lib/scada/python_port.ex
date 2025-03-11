@@ -200,7 +200,7 @@ defmodule Scada.PythonPort do
     new_state = %{state | message: message, data: data}
     DataManager.store_data(data)
     broadcast(@scada_status, new_state)
-    Logger.info("Fetch data response: #{message}, data: #{inspect(data)}")
+    # Logger.info("Fetch data response: #{message}, data: #{inspect(data)}")
     new_state
   end
 

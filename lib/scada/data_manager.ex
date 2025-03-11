@@ -4,11 +4,13 @@ defmodule Scada.DataManager do
 
   alias Scada.ContainersData
   alias Scada.PythonPort
+  alias Scada.Repo
 
   @scada_transport "scada_pub_sub"
   @update_containers :update_containers
   @set_data_status :set_data_status
   @default_interval 2_000
+  @db_insert_interval 5_000
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -30,13 +32,23 @@ defmodule Scada.DataManager do
     :ignore
   end
 
+  def update_db_interval(interval) when interval in [1, 2, 5, 10] do
+    GenServer.cast(__MODULE__, {:update_db_interval, interval * 1000})
+  end
+
+  def update_db_interval(_) do
+    :ignore
+  end
+
   def init(:ok) do
-    state = %{data: initial_state(), interval: @default_interval}
+    state = %{data: initial_state(), interval: @default_interval, db_interval: @db_insert_interval}
     schedule_fetch(state.interval)
     schedule_broadcast(state.interval)
+    schedule_db_insert(state.db_interval)
     {:ok, state}
   end
 
+  # Handle fetching data
   def handle_info(:fetch_data, state) do
     get_parameter_map()
     |> Enum.each(fn {_key, params} ->
@@ -56,6 +68,12 @@ defmodule Scada.DataManager do
     |> data_to_map()
     |> broadcast(@update_containers)
 
+    {:noreply, state}
+  end
+
+  def handle_info(:db_insert, state) do
+    db_insert(state.data)
+    schedule_db_insert(state.db_interval)
     {:noreply, state}
   end
 
@@ -95,6 +113,10 @@ defmodule Scada.DataManager do
 
   defp schedule_broadcast(interval) do
     Process.send_after(self(), :broadcast_data, interval)
+  end
+
+  defp schedule_db_insert(interval) do
+    Process.send_after(self(), :db_insert, interval)
   end
 
   defp broadcast(data, @update_containers) do
@@ -181,5 +203,37 @@ defmodule Scada.DataManager do
       |> Integer.parse()
 
     int_value
+  end
+
+  defp db_insert(data) do
+    Enum.each(data, fn %{title: title, items: items} ->
+      Enum.each(items, fn {_label, key, _unit, value} ->
+        unless value == "N/A" or value == "" do
+          try do
+            IO.puts("ACHTUNG value = #{inspect(value)}")
+
+            Repo.insert!(%Scada.DataPoint{
+              container_title: title,
+              key: key,
+              value: :erlang.term_to_binary(value),
+              value_type: infer_value_type(value),
+              recorded_at: DateTime.utc_now()
+            })
+          rescue
+            e ->
+              Logger.error("Failed to save data: #{inspect(e)}")
+          end
+        end
+      end)
+    end)
+  end
+
+  defp infer_value_type(value) do
+    cond do
+      is_float(value) -> "double"
+      is_integer(value) -> "int"
+      is_boolean(value) -> "bool"
+      true -> "string"
+    end
   end
 end
