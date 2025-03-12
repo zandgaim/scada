@@ -5,9 +5,9 @@ FROM elixir:1.15.0 AS builder
 ENV MIX_ENV=prod
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies including PostgreSQL client for size monitoring
 RUN apt-get update && \
-    apt-get install -y curl && \
+    apt-get install -y curl postgresql-client && \
     curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs python3 python3-pip python3-venv build-essential libpcap-dev && \
     npm install -g npm@9.8.1 && \
@@ -35,15 +35,16 @@ RUN python3 -m venv /opt/pyenv && \
 # Stage 2: Final Runtime Image
 FROM elixir:1.15.0
 
-# Install Python and required dependencies in the final image
+# Install Python, PostgreSQL client, and required dependencies in the final image
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip python3-venv && \
+    apt-get install -y python3 python3-pip python3-venv postgresql-client && \
     rm -rf /var/lib/apt/lists/*
 
 # Set runtime environment
 ENV MIX_ENV=prod \
     PORT=4020 \
-    PATH="/opt/pyenv/bin:$PATH"
+    PATH="/opt/pyenv/bin:$PATH" \
+    DATABASE_URL=${DATABASE_URL}
 
 WORKDIR /app
 
