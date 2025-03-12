@@ -5,9 +5,9 @@ FROM elixir:1.15.0 AS builder
 ENV MIX_ENV=prod
 WORKDIR /app
 
-# Install system dependencies including PostgreSQL client for size monitoring
+# Install system dependencies
 RUN apt-get update && \
-    apt-get install -y curl postgresql-client && \
+    apt-get install -y curl && \
     curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs python3 python3-pip python3-venv build-essential libpcap-dev && \
     npm install -g npm@9.8.1 && \
@@ -19,7 +19,7 @@ RUN mix local.hex --force && \
     mix local.rebar --force
 
 # Copy app files to the container
-COPY . .
+COPY . . 
 
 # Install dependencies and build assets
 RUN mix deps.get --only prod && \
@@ -35,16 +35,15 @@ RUN python3 -m venv /opt/pyenv && \
 # Stage 2: Final Runtime Image
 FROM elixir:1.15.0
 
-# Install Python, PostgreSQL client, and required dependencies in the final image
+# Install Python and required dependencies in the final image
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip python3-venv postgresql-client && \
+    apt-get install -y python3 python3-pip python3-venv && \
     rm -rf /var/lib/apt/lists/*
 
 # Set runtime environment
 ENV MIX_ENV=prod \
     PORT=4020 \
-    PATH="/opt/pyenv/bin:$PATH" \
-    DATABASE_URL=${DATABASE_URL}
+    PATH="/opt/pyenv/bin:$PATH"
 
 WORKDIR /app
 
@@ -57,8 +56,9 @@ COPY --from=builder /app/_build/prod/rel/scada /app
 # Copy digested assets to the final image
 COPY --from=builder /app/priv/static /app/priv/static
 
-# Copy the Python virtual environment from the builder stage
+# Copy Python environment and ADS service script
 COPY --from=builder /opt/pyenv /opt/pyenv
+COPY --from=builder /app/priv/python /app/priv/python
 
 # Entrypoint script to ensure all runtime variables are set
 COPY priv/scripts/entrypoint.sh /app/entrypoint.sh
