@@ -6,7 +6,8 @@ config :scada, Scada.Repo,
   database: "scada_repo",
   username: "postgres",
   password: "pass",
-  hostname: "localhost"
+  hostname: "localhost",
+  log: false
 
 config :scada,
   generators: [timestamp_type: :utc_datetime],

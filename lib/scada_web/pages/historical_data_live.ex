@@ -4,7 +4,11 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
 
   alias Scada.DataFetcher
 
+  @update_interval 5_000
+
   def mount(_params, _session, socket) do
+    if connected?(socket), do: :timer.send_interval(@update_interval, self(), :fetch_historical_data)
+
     container_titles = DataFetcher.list_container_titles()
     parameters = DataFetcher.list_parameters()
 
@@ -136,37 +140,41 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
   end
 
   def handle_event(
-        "fetch_historical_data",
-        %{"container_title" => container_title, "item_key" => item_key, "limit" => limit},
-        socket
-      ) do
-    if container_title != "" and item_key != "" do
-      opts = [limit: String.to_integer(limit)]
-      raw_data = DataFetcher.get_historical_data(container_title, item_key, opts)
+         "fetch_historical_data",
+         %{"container_title" => container_title, "item_key" => item_key, "limit" => limit},
+         socket
+       ) do
+    fetch_and_update_chart(socket, container_title, item_key, limit)
+  end
 
-      require Logger
-      Logger.info("Fetched raw data for #{container_title} - #{item_key}: #{inspect(raw_data)}")
+  def handle_info(:fetch_historical_data, socket) do
+    case {socket.assigns.container_title, socket.assigns.item_key} do
+      {container_title, item_key} when container_title != "" and item_key != "" ->
+        fetch_and_update_chart(socket, container_title, item_key, socket.assigns.limit)
 
-      # Reverse the data for correct order
-      reversed_data = Enum.reverse(raw_data)
-
-      chart_data = %{
-        labels: Enum.map(reversed_data, &Calendar.strftime(&1.recorded_at, "%Y-%m-%d %H:%M")),
-        values: Enum.map(reversed_data, & &1.value),
-        label: "#{container_title} - #{item_key}"
-      }
-
-      Logger.info("Chart data: #{inspect(chart_data)}")
-
-      socket =
-        socket
-        |> assign(historical_data: raw_data, container_title: container_title, item_key: item_key)
-        |> push_event("update-chart", chart_data)
-
-      {:noreply, socket}
-    else
-      {:noreply,
-       assign(socket, historical_data: nil, container_title: container_title, item_key: item_key)}
+      _ ->
+        {:noreply, socket}
     end
+  end
+
+  defp fetch_and_update_chart(socket, container_title, item_key, limit) do
+    opts = [limit: String.to_integer(limit)]
+    raw_data = DataFetcher.get_historical_data(container_title, item_key, opts)
+
+
+    reversed_data = Enum.reverse(raw_data)
+
+    chart_data = %{
+      labels: Enum.map(reversed_data, &Calendar.strftime(&1.recorded_at, "%Y-%m-%d %H:%M")),
+      values: Enum.map(reversed_data, & &1.value),
+      label: "#{container_title} - #{item_key}"
+    }
+
+    socket =
+      socket
+      |> assign(historical_data: raw_data, container_title: container_title, item_key: item_key)
+      |> push_event("update-chart", chart_data)
+
+    {:noreply, socket}
   end
 end
