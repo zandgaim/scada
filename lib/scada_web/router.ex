@@ -19,6 +19,7 @@ defmodule ScadaWeb.Router do
     pipe_through :browser
 
     live "/", Pages.ScadaLive
+    live "/historical", Pages.HistoricalDataLive
   end
 
   if Application.compile_env(:scada, :dev_routes) do

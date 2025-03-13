@@ -25,6 +25,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
 
     {:ok,
      assign(socket,
+       current_tab: "dashboard",
        status: state[:status],
        message: state[:message] || "Not connected to machine",
        tcp_status: state[:tcp_status] || "Not established",
@@ -51,10 +52,23 @@ defmodule ScadaWeb.Pages.ScadaLive do
       id="connection-status"
       class="flex flex-col min-h-screen bg-gradient-to-b from-gray-300 to-gray-200"
     >
-      <!-- Header -->
+      <!-- Header with Tabs -->
       <header class="w-full bg-gray-700 text-white p-4 flex justify-between items-center shadow-md">
         <h1 class="text-xl font-bold">SCADA Web</h1>
-
+        <nav class="flex space-x-4">
+          <a
+            href="/"
+            class={"text-white px-3 py-1 rounded-md #{if @current_tab == "dashboard", do: "bg-gray-500", else: "hover:bg-gray-600"}"}
+          >
+            Dashboard
+          </a>
+          <a
+            href="/historical"
+            class={"text-white px-3 py-1 rounded-md #{if @current_tab == "historical_data", do: "bg-gray-500", else: "hover:bg-gray-600"}"}
+          >
+            Historical Data
+          </a>
+        </nav>
         <div class="flex items-center space-x-3">
           <label for="fetch_interval" class="text-sm font-medium">Fetch Interval:</label>
           <form phx-change="update_interval">
@@ -64,9 +78,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
               class="bg-gray-600 text-white rounded-md pl-3 pr-8 py-1 border border-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:border-white appearance-none"
             >
               <option value="1" selected={@fetch_interval == "1"}>1s</option>
-
               <option value="2" selected={@fetch_interval == "2"}>2s</option>
-
               <option value="5" selected={@fetch_interval == "5"}>5s</option>
             </select>
           </form>
