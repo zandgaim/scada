@@ -41,7 +41,12 @@ defmodule Scada.DataManager do
   end
 
   def init(:ok) do
-    state = %{data: initial_state(), interval: @default_interval, db_interval: @db_insert_interval}
+    state = %{
+      data: initial_state(),
+      interval: @default_interval,
+      db_interval: @db_insert_interval
+    }
+
     schedule_fetch(state.interval)
     schedule_broadcast(state.interval)
     schedule_db_insert(state.db_interval)
@@ -210,8 +215,6 @@ defmodule Scada.DataManager do
       Enum.each(items, fn {_label, key, _unit, value} ->
         unless value == "N/A" or value == "" do
           try do
-            IO.puts("ACHTUNG value = #{inspect(value)}")
-
             Repo.insert!(%Scada.DataPoint{
               container_title: title,
               key: key,
