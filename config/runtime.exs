@@ -32,6 +32,12 @@ if config_env() == :prod do
       environment variable SECRET_KEY_BASE is missing.
       You can generate one by calling: mix phx.gen.secret
       """
+  database_url =
+    System.get_env("DATABASE_URL") ||
+      raise """
+      environment variable DATABASE_URL is missing.
+      For example: postgres://USER:PASSWORD@HOST:PORT/DATABASE
+      """
 
   host = System.get_env("PHX_HOST") || "example.com"
   port = String.to_integer(System.get_env("PORT") || "4020")
@@ -50,6 +56,9 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  config :scada, Scada.Repo,
+    url: database_url,
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key

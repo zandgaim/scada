@@ -7,11 +7,15 @@ WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && \
-    apt-get install -y curl && \
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs python3 python3-pip python3-venv build-essential libpcap-dev && \
-    npm install -g npm@9.8.1 && \
+    apt-get install -y --no-install-recommends \
+    curl python3 python3-pip python3-venv build-essential \
+    libpcap-dev postgresql-client && \
     rm -rf /var/lib/apt/lists/*
+
+# Install Node.js and npm properly
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g npm@9.8.1
 
 # Install Elixir and Phoenix dependencies
 RUN mix local.hex --force && \
@@ -37,7 +41,8 @@ FROM elixir:1.15.0
 
 # Install Python and required dependencies in the final image
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip python3-venv && \
+    apt-get install -y --no-install-recommends \
+    python3 python3-pip python3-venv postgresql-client && \
     rm -rf /var/lib/apt/lists/*
 
 # Set runtime environment
