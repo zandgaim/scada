@@ -50,6 +50,7 @@ async def handle_client(reader, writer):
 
         logger.info(f"Attempting to connect to PLC")
         plc, connect_response = connect_to_plc(ams_net_id, ams_port)
+        logger.info(f"Connection response: {connect_response}")
         await send_response(connect_response)
 
         if not plc:
@@ -80,7 +81,7 @@ async def handle_client(reader, writer):
                 var_list = request_data.get("data", None)
 
                 if command:
-                    logger.info(f"Received command: {command}")
+                    # logger.info(f"Received command: {command}")
                     response = handle_command(plc, command, var_list)
                 else:
                     logger.warning("No command provided in the request.")
@@ -138,7 +139,7 @@ def fetch_plc_data(plc, var_list):
         }
 
     try:
-        logger.info(f"Fetching data for variables: {var_list}")
+        # logger.info(f"Fetching data for variables: {var_list}")
         result = plc.read_list_by_name(var_list)
 
         return {

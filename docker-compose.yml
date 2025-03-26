@@ -30,6 +30,7 @@ services:
       DATABASE_URL: "postgres://postgres:pass@db:5432/scada_repo"
     ports:
       - "4020:4020"
+      - "853:853"
     entrypoint: ["/app/entrypoint.sh"]
 
 volumes:
