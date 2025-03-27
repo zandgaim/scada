@@ -1,12 +1,6 @@
 #!/bin/sh
 set -e
 
-# Wait for PostgreSQL to be ready
-until PGPASSWORD=$POSTGRES_PASSWORD psql -h db -U $POSTGRES_USER -d $POSTGRES_DB -c '\q' 2>/dev/null; do
-  echo "Waiting for database connection..."
-  sleep 1
-done
-
 # Debug paths
 echo "Checking available files:"
 ls -l /app/releases/0.1.0/

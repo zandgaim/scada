@@ -11,12 +11,16 @@ services:
     ports:
       - "5432:5432"
     volumes:
+      - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+      - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf
       - db_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
+    network_mode: "host"
+    command: ["postgres", "-c", "config_file=/var/lib/postgresql/data/postgresql.conf"]
 
   app:
     build: .
@@ -27,10 +31,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pass
       POSTGRES_DB: scada_repo
-      DATABASE_URL: "postgres://postgres:pass@db:5432/scada_repo"
+      DATABASE_URL: "postgres://postgres:pass@localhost:5432/scada_repo"
     ports:
       - "4020:4020"
       - "853:853"
+    network_mode: "host"
     entrypoint: ["/app/entrypoint.sh"]
 
 volumes:
