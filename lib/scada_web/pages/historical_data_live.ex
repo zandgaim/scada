@@ -7,7 +7,8 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
   @update_interval 5_000
 
   def mount(_params, _session, socket) do
-    if connected?(socket), do: :timer.send_interval(@update_interval, self(), :fetch_historical_data)
+    if connected?(socket),
+      do: :timer.send_interval(@update_interval, self(), :fetch_historical_data)
 
     container_titles = DataFetcher.list_container_titles()
     parameters = DataFetcher.list_parameters()
@@ -32,6 +33,7 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
     <div class="flex flex-col min-h-screen bg-gradient-to-b from-gray-300 to-gray-200">
       <header class="w-full bg-gray-700 text-white p-4 flex justify-between items-center shadow-md">
         <h1 class="text-xl font-bold">SCADA Web</h1>
+        
         <nav class="flex space-x-4">
           <a
             href="/"
@@ -39,6 +41,7 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
           >
             Dashboard
           </a>
+          
           <a
             href="/historical"
             class={"text-white px-3 py-1 rounded-md #{if @current_tab == "historical_data", do: "bg-gray-500", else: "hover:bg-gray-600"}"}
@@ -47,6 +50,7 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
           </a>
         </nav>
       </header>
+      
       <main class="flex flex-col items-center mt-4 px-6">
         <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
           <.form
@@ -58,6 +62,7 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
               <label for="container_title" class="block text-gray-700 font-medium mb-2">
                 Container Title:
               </label>
+              
               <select
                 id="container_title"
                 name="container_title"
@@ -65,11 +70,13 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
                 class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
               >
                 <option value="">Select a container</option>
+                
                 <%= for title <- @container_titles do %>
                   <option value={title} selected={@container_title == title}>{title}</option>
                 <% end %>
               </select>
             </div>
+            
             <div class="flex flex-col text-left w-full sm:w-auto">
               <label for="item_key" class="block text-gray-700 font-medium mb-2">Item Key:</label>
               <select
@@ -79,11 +86,13 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
                 class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
               >
                 <option value="">Select an item</option>
+                
                 <%= for param <- @parameters, param.container_title == @container_title do %>
                   <option value={param.key} selected={@item_key == param.key}>{param.key}</option>
                 <% end %>
               </select>
             </div>
+            
             <div class="flex flex-col text-left w-full sm:w-auto">
               <label for="limit" class="block text-gray-700 font-medium mb-2">Record Limit:</label>
               <input
@@ -96,6 +105,7 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
                 class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-24"
               />
             </div>
+            
             <button
               type="submit"
               class="bg-teal-700 hover:bg-teal-800 text-white font-semibold px-6 py-2 rounded-lg transition duration-300"
@@ -104,11 +114,13 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
             </button>
           </.form>
         </section>
+        
         <%= if @historical_data do %>
           <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md">
             <h2 class="text-xl font-semibold text-gray-700 mb-4">
               Historical Data for {@container_title} - {@item_key}
             </h2>
+            
             <div class="w-full h-[400px] relative">
               <canvas id="historical-chart" phx-hook="ChartHook" class="absolute inset-0"></canvas>
             </div>
@@ -140,10 +152,10 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
   end
 
   def handle_event(
-         "fetch_historical_data",
-         %{"container_title" => container_title, "item_key" => item_key, "limit" => limit},
-         socket
-       ) do
+        "fetch_historical_data",
+        %{"container_title" => container_title, "item_key" => item_key, "limit" => limit},
+        socket
+      ) do
     fetch_and_update_chart(socket, container_title, item_key, limit)
   end
 
@@ -160,7 +172,6 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
   defp fetch_and_update_chart(socket, container_title, item_key, limit) do
     opts = [limit: String.to_integer(limit)]
     raw_data = DataFetcher.get_historical_data(container_title, item_key, opts)
-
 
     reversed_data = Enum.reverse(raw_data)
 

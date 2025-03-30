@@ -15,15 +15,22 @@ config :scada,
   ads_service: "priv/python/ads_service.py",
   tcp_host: "127.0.0.1",
   tcp_port: 8888,
-
-  ams_net_id: "39.133.74.23.1.1",     # Targetr Device id
-  ams_port: 853,                      # Targetr Device port
-  target_ip: "192.168.56.101",        # Targetr Device ip
-  sender_ams: "192.168.56.101.1.1",   # Targetr Device id (custom)
-  plc_username: "Administrator",      # Targetr Device username
-  plc_password: "1",                  # Targetr Device password
-  route_name: "SCADA_ROUTE",          # Route name
-  hostname: "192.168.56.1"            # Local ip
+  # Targetr Device id
+  ams_net_id: "39.133.74.23.1.1",
+  # Targetr Device port
+  ams_port: 853,
+  # Targetr Device IP
+  target_ip: "192.168.56.101",
+  # Target Device IP + 2 digits of custom id
+  sender_ams: "192.168.56.101.1.1",
+  # Targetr Device username
+  plc_username: "Administrator",
+  # Targetr Device password
+  plc_password: "1",
+  # Route Name
+  route_name: "SCADA_ROUTE",
+  # Local IP
+  hostname: "192.168.56.1"
 
 # Configures the endpoint
 config :scada, ScadaWeb.Endpoint,
