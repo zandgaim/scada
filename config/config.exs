@@ -16,14 +16,14 @@ config :scada,
   tcp_host: "127.0.0.1",
   tcp_port: 8888,
 
-  ams_net_id: "39.133.74.23.1.1",
-  ams_port: 853,
-  target_ip: "192.168.56.101",
-  sender_ams: "192.168.56.101.1.1",
-  plc_username: "Administrator",
-  plc_password: "1",
-  route_name: "SCADA_ROUTE",
-  hostname: "192.168.56.1"
+  ams_net_id: "39.133.74.23.1.1",     # Targetr Device id
+  ams_port: 853,                      # Targetr Device port
+  target_ip: "192.168.56.101",        # Targetr Device ip
+  sender_ams: "192.168.56.101.1.1",   # Targetr Device id (custom)
+  plc_username: "Administrator",      # Targetr Device username
+  plc_password: "1",                  # Targetr Device password
+  route_name: "SCADA_ROUTE",          # Route name
+  hostname: "192.168.56.1"            # Local ip
 
 # Configures the endpoint
 config :scada, ScadaWeb.Endpoint,
