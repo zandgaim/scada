@@ -14,6 +14,13 @@ defmodule Scada.PythonPort do
   @ads_service Application.compile_env(:scada, :ads_service)
   @ams_net_id Application.compile_env(:scada, :ams_net_id)
   @ams_port Application.compile_env(:scada, :ams_port)
+  @target_ip Application.compile_env(:scada, :target_ip)
+  @sender_ams Application.compile_env(:scada, :sender_ams)
+  @plc_username Application.compile_env(:scada, :plc_username)
+  @plc_password Application.compile_env(:scada, :plc_password)
+  @route_name Application.compile_env(:scada, :route_name)
+  @hostname Application.compile_env(:scada, :hostname)
+
   @retry_interval 10_000
 
   def get_state do
@@ -252,7 +259,13 @@ defmodule Scada.PythonPort do
     encoded_request =
       %{
         ams_net_id: @ams_net_id,
-        ams_port: @ams_port
+        ams_port: @ams_port,
+        target_ip: @target_ip,
+        sender_ams: @sender_ams,
+        plc_username: @plc_username,
+        plc_password: @plc_password,
+        route_name: @route_name,
+        hostname: @hostname
       }
       |> Map.merge(request)
       |> Jason.encode!()

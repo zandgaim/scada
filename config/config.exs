@@ -13,10 +13,17 @@ config :scada,
   generators: [timestamp_type: :utc_datetime],
   python_env: "venv/Scripts/python",
   ads_service: "priv/python/ads_service.py",
-  ams_net_id: "192.168.56.1.1.1",
-  ams_port: 853,
   tcp_host: "127.0.0.1",
-  tcp_port: 8888
+  tcp_port: 8888,
+
+  ams_net_id: "39.133.74.23.1.1",
+  ams_port: 853,
+  target_ip: "192.168.56.101",
+  sender_ams: "192.168.56.101.1.1",
+  plc_username: "Administrator",
+  plc_password: "1",
+  route_name: "SCADA_ROUTE",
+  hostname: "192.168.56.1"
 
 # Configures the endpoint
 config :scada, ScadaWeb.Endpoint,

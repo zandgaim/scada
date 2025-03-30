@@ -8,8 +8,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pass
       POSTGRES_DB: scada_repo
-    ports:
-      - "5432:5432"
     volumes:
       - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
       - ./postgresql.conf:/var/lib/postgresql/data/postgresql.conf
@@ -32,9 +30,6 @@ services:
       POSTGRES_PASSWORD: pass
       POSTGRES_DB: scada_repo
       DATABASE_URL: "postgres://postgres:pass@localhost:5432/scada_repo"
-    ports:
-      - "4020:4020"
-      - "853:853"
     network_mode: "host"
     entrypoint: ["/app/entrypoint.sh"]
 

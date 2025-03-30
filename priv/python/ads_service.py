@@ -37,8 +37,16 @@ async def handle_client(reader, writer):
         # Read initial configuration from the client
         config_data = await reader.readline()
         config = json.loads(config_data.decode('utf-8'))
+
         ams_net_id = config.get("ams_net_id")
         ams_port = config.get("ams_port")
+
+        target_ip = config.get("target_ip")
+        sender_ams = config.get("sender_ams")
+        plc_username = config.get("plc_username")
+        plc_password = config.get("plc_password")
+        route_name = config.get("route_name")
+        hostname = config.get("hostname")
 
         if not ams_net_id or not ams_port:
             logger.error("Missing AMS Net ID or port in initial configuration.")
@@ -49,7 +57,7 @@ async def handle_client(reader, writer):
             return
 
         logger.info(f"Attempting to connect to PLC")
-        plc, connect_response = connect_to_plc(ams_net_id, ams_port)
+        plc, connect_response = connect_to_plc(ams_net_id, ams_port, target_ip, sender_ams, plc_username, plc_password, route_name, hostname)
         logger.info(f"Connection response: {connect_response}")
         await send_response(connect_response)
 
@@ -101,9 +109,16 @@ async def handle_client(reader, writer):
             plc.close()
 
 
-def connect_to_plc(ams_net_id, ams_port):
+def connect_to_plc(ams_net_id, ams_port, target_ip, sender_ams, plc_username, plc_password, route_name, hostname):
     try:
-        plc = pyads.Connection(ams_net_id, ams_port)
+        plc = None
+
+        pyads.open_port()
+        pyads.set_local_address(sender_ams)
+        pyads.add_route_to_plc(sender_ams, hostname, target_ip, plc_username, plc_password, route_name=route_name)
+        pyads.close_port()
+
+        plc = pyads.Connection(ams_net_id, ams_port, target_ip)
         plc.open()
         state = plc.read_state()
 
