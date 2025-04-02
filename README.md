@@ -13,5 +13,4 @@ Features:
 
 Install Docker, then:
 
-  * Build `docker build -t scada .`
-  * Run `docker run -d -p 4020:4020 scada`
+  * `docker-compose up --build`
