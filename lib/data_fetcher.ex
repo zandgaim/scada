@@ -11,7 +11,7 @@ defmodule Scada.DataFetcher do
       from(dp in DataPoint,
         where: dp.container_title == ^container_title and dp.key == ^item_key,
         where: dp.recorded_at <= ^to_time,
-        order_by: [desc: dp.recorded_at],
+        order_by: [asc: dp.recorded_at],
         select: %{
           value: dp.value,
           value_type: dp.value_type,

@@ -14,26 +14,37 @@ Hooks.ChartHook = {
         datasets: [
           {
             label: "Historical Data",
-            data: [],
+            data: [], // We'll fill this later
             borderColor: "rgba(75, 192, 192, 1)",
             backgroundColor: "rgba(75, 192, 192, 0.2)",
             fill: true,
-            tension: 0.1
+            tension: 0.1,
+            spanGaps: false // Important for showing actual gaps
           }
         ]
       },
       options: {
         scales: {
           x: {
-            type: "category", // Use category scale for string labels (timestamps)
+            type: "time", // ← Use 'time' so Chart.js reads `x` from data points
+            time: {
+              unit: "minute",
+              tooltipFormat: "yyyy-MM-dd HH:mm:ss"
+            },
             title: { display: true, text: "Timestamp" },
-            ticks: { maxTicksLimit: 10 } // Limit x-axis labels
+            ticks: {
+              maxTicksLimit: 10,
+            }
           },
-          y: { title: { display: true, text: "Value" }, beginAtZero: true }
+          y: {
+            title: { display: true, text: "Value" },
+            beginAtZero: true
+          }
         },
         plugins: {
-          legend: {
-            display: true
+          legend: { display: true },
+          annotation: {
+            annotations: [] // We'll update this dynamically
           }
         },
         maintainAspectRatio: false,
@@ -41,16 +52,21 @@ Hooks.ChartHook = {
       }
     });
 
-    this.handleEvent("update-chart", ({ labels, values, label }) => {
-      console.log("Chart update received:", { labels, values, label });
+    this.handleEvent("update-chart", ({ label, raw_times, values }) => {
+      const dataPoints = [];
     
-      this.chart.data.labels = labels;
-      this.chart.data.datasets[0].data = values.map((v, index) => ({ x: labels[index], y: v }));
+      for (let i = 0; i < raw_times.length; i++) {
+        const time = raw_times[i];
+        const value = values[i] === null ? null : values[i]; // 👈 handle nil safely
+        dataPoints.push({ x: time, y: value });
+      }
+    
+      this.chart.data.datasets[0].data = dataPoints;
       this.chart.data.datasets[0].label = label;
-    
-      this.chart.update("none"); // Try "none" to prevent animations
+      this.chart.update("none");
     });
   },
+
   destroyed() {
     if (this.chart) {
       this.chart.destroy();

@@ -211,6 +211,12 @@ defmodule Scada.DataManager do
   end
 
   defp db_insert(data) do
+    now =
+      DateTime.utc_now()
+      |> DateTime.add(2, :hour)
+
+    rounded_now = round_to_nearest_5s(now)
+
     Enum.each(data, fn %{title: title, items: items} ->
       Enum.each(items, fn {_label, key, _unit, value} ->
         unless value == "N/A" or value == "" do
@@ -220,7 +226,7 @@ defmodule Scada.DataManager do
               key: key,
               value: :erlang.term_to_binary(value),
               value_type: infer_value_type(value),
-              recorded_at: DateTime.utc_now()
+              recorded_at: rounded_now
             })
           rescue
             e ->
@@ -229,6 +235,12 @@ defmodule Scada.DataManager do
         end
       end)
     end)
+  end
+
+  defp round_to_nearest_5s(dt) do
+    dt
+    |> Map.update!(:second, &(div(&1, 5) * 5))
+    |> Map.put(:microsecond, {0, 6})
   end
 
   defp infer_value_type(value) do
