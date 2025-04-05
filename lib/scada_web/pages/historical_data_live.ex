@@ -218,7 +218,7 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
         iso = DateTime.to_iso8601(dt)
 
         {
-          [Calendar.strftime(dt, "%H:%M:%S") | l_acc],
+          [Calendar.strftime(dt, "%Y-%m-%d %H:%M:%S") | l_acc],
           [iso | r_acc],
           [Map.get(data_map, iso) | v_acc]
         }
