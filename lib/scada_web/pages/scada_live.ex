@@ -54,12 +54,9 @@ defmodule ScadaWeb.Pages.ScadaLive do
     >
       <header class="w-full bg-gray-700 text-white p-4 flex justify-between items-center shadow-md">
         <div class="flex items-center justify-between w-full">
-          <!-- Left: Logo -->
           <h1 class="text-xl font-bold">SCADA Web</h1>
 
-    <!-- Right: Interval + Nav -->
           <div class="flex items-center gap-6">
-            <!-- Fetch Interval -->
             <div class="flex items-center gap-2">
               <label for="fetch_interval" class="text-base">Fetch:</label>
               <form phx-change="update_interval">
@@ -93,7 +90,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
           </div>
         </div>
       </header>
-
+      
     <!-- Main Content -->
       <main class="flex flex-col items-center mt-4 px-6">
         <!-- Status Section -->
@@ -105,7 +102,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
           tcp_status={@tcp_status}
           tcp_message={@tcp_message}
         />
-
+        
     <!-- Containers -->
         <.live_component id="containers_main" module={ContainerComponent} containers={@containers} />
 
@@ -119,7 +116,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
             general_message={@general_message}
           />
         <% end %>
-
+        
     <!-- Form Section -->
         <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
           <.form
@@ -142,7 +139,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
                 class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
               />
             </div>
-
+            
     <!-- Query Button -->
             <button
               type="submit"

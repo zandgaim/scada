@@ -55,50 +55,48 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
       </header>
 
       <main class="flex flex-col items-center mt-4 px-6">
-        <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
+        <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md">
+          <h2 class="text-lg font-semibold text-gray-800 mb-4 text-center">Select Historical Data</h2>
           <.form
             for={@form_data}
             phx-submit="fetch_historical_data"
-            class="flex flex-col sm:flex-row items-center justify-center gap-4"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-end"
           >
-            <div class="flex flex-col text-left w-full sm:w-auto">
-              <label for="container_title" class="block text-gray-700 font-medium mb-2">
+            <div class="flex flex-col">
+              <label for="container_title" class="block text-gray-700 font-medium mb-1">
                 Container Title:
               </label>
-
               <select
                 id="container_title"
                 name="container_title"
                 phx-change="update_container"
-                class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
+                class="border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
               >
                 <option value="">Select a container</option>
-
                 <%= for title <- @container_titles do %>
                   <option value={title} selected={@container_title == title}>{title}</option>
                 <% end %>
               </select>
             </div>
 
-            <div class="flex flex-col text-left w-full sm:w-auto">
-              <label for="item_key" class="block text-gray-700 font-medium mb-2">Item Key:</label>
+            <div class="flex flex-col">
+              <label for="item_key" class="block text-gray-700 font-medium mb-1">Item Key:</label>
               <select
                 id="item_key"
                 name="item_key"
                 phx-change="update_key"
-                class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
+                class="border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
               >
                 <option value="">Select an item</option>
-
                 <%= for param <- @parameters, param.container_title == @container_title do %>
                   <option value={param.key} selected={@item_key == param.key}>{param.key}</option>
                 <% end %>
               </select>
             </div>
 
-            <div class="flex flex-col text-left w-full sm:w-auto">
-              <label for="tracking_time" class="block text-gray-700 font-medium mb-2">
-                Tracking Time (Minutes, Hours, Days):
+            <div class="flex flex-col">
+              <label for="tracking_time" class="block text-gray-700 font-medium mb-1">
+                Tracking Time (e.g. 30m, 2h, 1d):
               </label>
               <input
                 type="text"
@@ -106,26 +104,27 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
                 name="tracking_time"
                 value={@form_data["tracking_time"]}
                 phx-change="update_tracking_time"
-                placeholder="e.g., 30m, 2h, 5d"
-                class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-36"
+                placeholder="e.g. 30m, 2h, 1d"
+                class="border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
             </div>
 
-            <button
-              type="submit"
-              class="bg-teal-700 hover:bg-teal-800 text-white font-semibold px-6 py-2 rounded-lg transition duration-300"
-            >
-              Fetch Data
-            </button>
+            <div class="sm:col-span-2 lg:col-span-3 flex justify-end mt-2">
+              <button
+                type="submit"
+                class="bg-teal-700 hover:bg-teal-800 text-white font-semibold px-6 py-2 rounded-lg transition duration-300"
+              >
+                Fetch Data
+              </button>
+            </div>
           </.form>
         </section>
 
         <%= if @historical_data do %>
           <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4">
-              Historical Data for {@container_title} - {@item_key}
+            <h2 class="text-xl font-semibold text-gray-700 mb-4 text-center">
+              Historical Data: {@container_title} - {@item_key}
             </h2>
-
             <div class="w-full h-[400px] relative">
               <canvas id="historical-chart" phx-hook="ChartHook" class="absolute inset-0"></canvas>
             </div>
@@ -221,7 +220,7 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
         iso = DateTime.to_iso8601(dt)
 
         {
-          [Calendar.strftime(dt, "%Y-%m-%d %H:%M:%S") | l_acc],
+          [Calendar.strftime(dt, "%m-%d %H:%M:%S") | l_acc],
           [iso | r_acc],
           [Map.get(data_map, iso) | v_acc]
         }
