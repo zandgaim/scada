@@ -30,7 +30,10 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
 
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col min-h-screen bg-gradient-to-b from-gray-300 to-gray-200">
+    <div
+      id="connection-status"
+      class="flex flex-col min-h-screen bg-gradient-to-b from-gray-300 to-gray-200"
+    >
       <header class="w-full bg-gray-700 text-white p-4 flex justify-between items-center shadow-md">
         <h1 class="text-xl font-bold">SCADA Web</h1>
 

@@ -52,39 +52,48 @@ defmodule ScadaWeb.Pages.ScadaLive do
       id="connection-status"
       class="flex flex-col min-h-screen bg-gradient-to-b from-gray-300 to-gray-200"
     >
-      <!-- Header with Tabs -->
       <header class="w-full bg-gray-700 text-white p-4 flex justify-between items-center shadow-md">
-        <h1 class="text-xl font-bold">SCADA Web</h1>
-        <nav class="flex space-x-4">
-          <a
-            href="/"
-            class={"text-white px-3 py-1 rounded-md #{if @current_tab == "dashboard", do: "bg-gray-500", else: "hover:bg-gray-600"}"}
-          >
-            Dashboard
-          </a>
-          <a
-            href="/historical"
-            class={"text-white px-3 py-1 rounded-md #{if @current_tab == "historical_data", do: "bg-gray-500", else: "hover:bg-gray-600"}"}
-          >
-            Historical Data
-          </a>
-        </nav>
-        <div class="flex items-center space-x-3">
-          <label for="fetch_interval" class="text-sm font-medium">Fetch Interval:</label>
-          <form phx-change="update_interval">
-            <select
-              id="fetch_interval"
-              name="fetch_interval"
-              class="bg-gray-600 text-white rounded-md pl-3 pr-8 py-1 border border-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:border-white appearance-none"
-            >
-              <option value="1" selected={@fetch_interval == "1"}>1s</option>
-              <option value="2" selected={@fetch_interval == "2"}>2s</option>
-              <option value="5" selected={@fetch_interval == "5"}>5s</option>
-            </select>
-          </form>
+        <div class="flex items-center justify-between w-full">
+          <!-- Left: Logo -->
+          <h1 class="text-xl font-bold">SCADA Web</h1>
+
+    <!-- Right: Interval + Nav -->
+          <div class="flex items-center gap-6">
+            <!-- Fetch Interval -->
+            <div class="flex items-center gap-2">
+              <label for="fetch_interval" class="text-base">Fetch:</label>
+              <form phx-change="update_interval">
+                <select
+                  id="fetch_interval"
+                  name="fetch_interval"
+                  class="bg-gray-600 text-white text-base rounded-md px-2 py-1 border border-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
+                >
+                  <option value="1" selected={@fetch_interval == "1"}>1s</option>
+                  <option value="2" selected={@fetch_interval == "2"}>2s</option>
+                  <option value="5" selected={@fetch_interval == "5"}>5s</option>
+                </select>
+              </form>
+            </div>
+
+            <nav class="flex space-x-4">
+              <a
+                href="/"
+                class={"text-white px-3 py-1 rounded-md #{if @current_tab == "dashboard", do: "bg-gray-500", else: "hover:bg-gray-600"}"}
+              >
+                Dashboard
+              </a>
+
+              <a
+                href="/historical"
+                class={"text-white px-3 py-1 rounded-md #{if @current_tab == "historical_data", do: "bg-gray-500", else: "hover:bg-gray-600"}"}
+              >
+                Historical Data
+              </a>
+            </nav>
+          </div>
         </div>
       </header>
-      
+
     <!-- Main Content -->
       <main class="flex flex-col items-center mt-4 px-6">
         <!-- Status Section -->
@@ -96,7 +105,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
           tcp_status={@tcp_status}
           tcp_message={@tcp_message}
         />
-        
+
     <!-- Containers -->
         <.live_component id="containers_main" module={ContainerComponent} containers={@containers} />
 
@@ -110,7 +119,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
             general_message={@general_message}
           />
         <% end %>
-        
+
     <!-- Form Section -->
         <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
           <.form
@@ -133,7 +142,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
                 class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
               />
             </div>
-            
+
     <!-- Query Button -->
             <button
               type="submit"
