@@ -1,4 +1,4 @@
-defmodule Scada.DataFetcher do
+defmodule Scada.DBManager do
   alias Scada.{Repo, DataPoint}
   import Ecto.Query
 

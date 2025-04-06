@@ -2,7 +2,7 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
   use Phoenix.LiveView
   import Phoenix.Component
 
-  alias Scada.DataFetcher
+  alias Scada.DBManager
 
   @update_interval 5_000
 
@@ -10,8 +10,8 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
     if connected?(socket),
       do: :timer.send_interval(@update_interval, self(), :fetch_historical_data)
 
-    container_titles = DataFetcher.list_container_titles()
-    parameters = DataFetcher.list_parameters()
+    container_titles = DBManager.list_container_titles()
+    parameters = DBManager.list_parameters()
 
     {:ok,
      assign(socket,
@@ -136,7 +136,7 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
   end
 
   def handle_event("update_container", %{"container_title" => container_title}, socket) do
-    parameters = DataFetcher.list_parameters(container_title)
+    parameters = DBManager.list_parameters(container_title)
 
     {:noreply,
      assign(socket,
@@ -196,7 +196,7 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
 
     # Fetch already-rounded data from DB
     data =
-      DataFetcher.get_historical_data(container_title, item_key,
+      DBManager.get_historical_data(container_title, item_key,
         from_time: from_time,
         to_time: now
       )
