@@ -3,7 +3,7 @@ defmodule Scada.DataManager do
   require Logger
 
   alias Scada.ContainersData
-  alias Scada.PythonPort
+  alias Scada.ADSMenager
   alias Scada.Repo
 
   @scada_transport "scada_pub_sub"
@@ -59,7 +59,7 @@ defmodule Scada.DataManager do
     |> Enum.each(fn {_key, params} ->
       params
       |> Map.values()
-      |> PythonPort.fetch_data()
+      |> ADSMenager.fetch_data()
     end)
 
     schedule_fetch(state.interval)
@@ -96,7 +96,7 @@ defmodule Scada.DataManager do
         |> Enum.map(fn {key, value} -> {key, parse_value(value)} end)
         |> Enum.into(%{})
 
-      PythonPort.set_data(converted_data)
+      ADSMenager.set_data(converted_data)
     rescue
       _exception ->
         "⚠️ Invalid data"

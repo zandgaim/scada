@@ -1,4 +1,4 @@
-defmodule Scada.PythonPort do
+defmodule Scada.ADSMenager do
   use GenServer
   require Logger
 

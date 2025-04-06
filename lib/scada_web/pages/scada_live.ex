@@ -90,7 +90,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
           </div>
         </div>
       </header>
-      
+
     <!-- Main Content -->
       <main class="flex flex-col items-center mt-4 px-6">
         <!-- Status Section -->
@@ -102,7 +102,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
           tcp_status={@tcp_status}
           tcp_message={@tcp_message}
         />
-        
+
     <!-- Containers -->
         <.live_component id="containers_main" module={ContainerComponent} containers={@containers} />
 
@@ -116,7 +116,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
             general_message={@general_message}
           />
         <% end %>
-        
+
     <!-- Form Section -->
         <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
           <.form
@@ -139,7 +139,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
                 class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
               />
             </div>
-            
+
     <!-- Query Button -->
             <button
               type="submit"
@@ -183,7 +183,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
         |> String.split(",")
         |> Enum.map(&String.trim/1)
 
-      Scada.PythonPort.fetch_data(field_list)
+      Scada.ADSMenager.fetch_data(field_list)
 
       {:noreply, assign(socket, message: "Fetching data...")}
     else
@@ -268,7 +268,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
     do: title |> to_string() |> String.replace("_", " ")
 
   defp get_state do
-    Scada.PythonPort.get_state()
+    Scada.ADSMenager.get_state()
   end
 
   defp get_containers do
