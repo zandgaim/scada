@@ -25,38 +25,43 @@ defmodule ScadaWeb.Components.ContainerComponent do
           phx-click="show_table"
           phx-value-id={id}
         >
-          <div class="flex p-2">
-            <div class="flex-shrink-0 flex flex-col items-center mr-3">
-              <div class={"w-14 h-14 #{status_class(container)} rounded-full flex items-center justify-center"}>
-                <img
-                  src={
-                    ScadaWeb.Endpoint.static_path("/images/containers/#{normalize_string(id)}.png")
-                  }
-                  alt="Status Icon"
-                  class="w-10 h-10 object-contain"
-                  onerror="this.onerror=null; this.src='/images/default_icon.png';"
-                />
+          <div class="w-full px-1">
+            <!-- Top Row: Icon + Title -->
+            <div class="flex mb-2">
+              <div class="flex-shrink-0 flex flex-col items-center mr-3">
+                <div class={"w-14 h-14 #{status_class(container)} rounded-full flex items-center justify-center"}>
+                  <img
+                    src={
+                      ScadaWeb.Endpoint.static_path("/images/containers/#{normalize_string(id)}.png")
+                    }
+                    alt="Status Icon"
+                    class="w-10 h-10 object-contain"
+                    onerror="this.onerror=null; this.src='/images/default_icon.png';"
+                  />
+                </div>
+              </div>
+
+              <div class="flex-grow">
+                <h3 class="text-xl font-bold text-white">
+                  {normalize_title(title) || "Untitled"}
+                </h3>
               </div>
             </div>
+            
+    <!-- Bottom Table Area -->
 
-            <div class="flex-grow">
-              <h3 class="text-xl font-bold text-white mb-2">
-                {normalize_title(title) || "Untitled"}
-              </h3>
+            <div class="grid grid-cols-3 gap-y-2 text-m text-gray-200 w-full">
+              <%= for {label, _, symb, value} <- Enum.take(container.items, 3) do %>
+                <div class="col-span-2 border-t border-gray-600"></div>
 
-              <div class="grid grid-cols-2 gap-y-2 text-sm">
-                <%= for {label, _, symb, value} <- Enum.take(container.items, 3) do %>
-                  <div class="col-span-2 border-t border-gray-600"></div>
+                <div class="col-span-1 text-gray-400 font-semibold flex items-center">
+                  <span class="w-2 h-2 rounded-full mr-1 bg-gray-400"></span> {label}
+                </div>
 
-                  <div class="col-span-1 text-gray-400 font-semibold text-wrap flex items-center">
-                    <span class="w-2 h-2 rounded-full mr-1"></span> {label}
-                  </div>
-
-                  <div class="col-span-1 text-right font-semibold text-gray-200 text-wrap">
-                    {value} {if symb, do: symb, else: ""}
-                  </div>
-                <% end %>
-              </div>
+                <div class="col-span-1 text-right font-semibold">
+                  {value} {if symb, do: symb, else: ""}
+                </div>
+              <% end %>
             </div>
           </div>
         </div>
