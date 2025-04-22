@@ -336,7 +336,7 @@ defmodule Scada.ContainersData do
           {"Max DC link current", "GVL_Visu.stVisu_DAB_EV_set.rIHVmax", "A", "N/A"},
           {"Max Load current", "GVL_Visu.stVisu_DAB_EV_set.rILVmax", "A", "N/A"},
           {"Set Converter power", "GVL_Visu.stVisu_DAB_EV_set.rPowerSet", "W", "N/A"},
-          {"Device IP Address", "GVL_Visu.stVisu_DAB_EV_set.IP_address", "string", "N/A"},
+          {"Device IP Address", "GVL_Visu.stVisu_DAB_EV_set.IP_address", "string", ""},
           {"Device ID Number", "GVL_Visu.stVisu_DAB_EV_set.ID_number", "int", "N/A"}
         ]
       },
@@ -393,7 +393,7 @@ defmodule Scada.ContainersData do
           {"Maksymalny prąd odbiornika", "GVL_Visu.stVisu_DAB_PV_set.rILVmax", "A", "N/A"},
           {"Set the power of the converter", "GVL_Visu.stVisu_DAB_PV_set.rPowerSet", "", "N/A"},
           {"Address IP device '10.0.10.x'", "GVL_Visu.stVisu_DAB_PV_set.IP_address", "string",
-           "N/A"},
+           ""},
           {"Number ID device", "GVL_Visu.stVisu_DAB_PV_set.ID_number", "int", "N/A"}
         ]
       },
@@ -455,7 +455,7 @@ defmodule Scada.ContainersData do
           {"Set the power of the converter", "GVL_Visu.stVisu_DAB_LiIon_set.rPowerSet", "",
            "N/A"},
           {"Address IP device '10.0.10.x'", "GVL_Visu.stVisu_DAB_LiIon_set.IP_address", "string",
-           "N/A"},
+           ""},
           {"Number ID device", "GVL_Visu.stVisu_DAB_LiIon_set.ID_number", "int", "N/A"}
         ]
       },
@@ -514,7 +514,7 @@ defmodule Scada.ContainersData do
           {"Maksymalny prąd odbiornika", "GVL_Visu.stVisu_DAB_AGM_set.rILVmax", "A", "N/A"},
           {"Set the power of the converter", "GVL_Visu.stVisu_DAB_AGM_set.rPowerSet", "", "N/A"},
           {"Address IP device '10.0.10.x'", "GVL_Visu.stVisu_DAB_AGM_set.IP_address", "string",
-           "N/A"},
+           ""},
           {"Number ID device", "GVL_Visu.stVisu_DAB_AGM_set.ID_number", "int", "N/A"}
         ]
       },
@@ -573,7 +573,7 @@ defmodule Scada.ContainersData do
           {"Maksymalny prąd odbiornika", "GVL_Visu.stVisu_DAB_SCAP_set.rILVmax", "A", "N/A"},
           {"Set the power of the converter", "GVL_Visu.stVisu_DAB_SCAP_set.rPowerSet", "", "N/A"},
           {"Address IP device '10.0.10.x'", "GVL_Visu.stVisu_DAB_SCAP_set.IP_address", "string",
-           "N/A"},
+           ""},
           {"Number ID device", "GVL_Visu.stVisu_DAB_SCAP_set.ID_number", "int", "N/A"}
         ]
       },
@@ -629,7 +629,7 @@ defmodule Scada.ContainersData do
           {"Overtemperature value", "GVL_Visu.stVisu_AFE_set.rAlarm_Temperature", "°C", "N/A"},
           {"Reference active power value", "GVL_Visu.stVisu_AFE_set.rPref", "W", "N/A"},
           {"Reference reactive power value", "GVL_Visu.stVisu_AFE_set.rQref", "var", "N/A"},
-          {"Address IP device", "GVL_Visu.stVisu_AFE_set.IP_address", "string", "N/A"}
+          {"Address IP device", "GVL_Visu.stVisu_AFE_set.IP_address", "string", ""}
         ]
       },
       %{

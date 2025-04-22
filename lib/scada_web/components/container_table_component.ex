@@ -18,6 +18,7 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
           <h2 class="text-2xl font-semibold text-white">
             {id_to_title(@container_name)}
           </h2>
+
           <button phx-click="hide_table" class="text-white text-2xl hover:text-gray-300 transition">
             ✖
           </button>
@@ -52,61 +53,73 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
             <thead>
               <tr>
                 <th class="py-2 px-4 text-left font-semibold text-gray-200">Label</th>
+
                 <th class="py-2 px-4 text-left font-semibold text-gray-200">Value</th>
               </tr>
             </thead>
+
             <tbody>
               <%= for {label, key, unit, value} <- @items do %>
                 <%= cond do %>
                   <% @config_mode and String.contains?(key, "_set") -> %>
                     <tr class="border-b border-gray-700">
                       <td class="py-2 px-4 text-gray-300">{label}</td>
+
                       <td class="py-2 px-4">
                         <form phx-change="edit_data" class="w-full">
-                          <%= cond do %>
-                            <% unit == "bool" -> %>
-                              <select
-                                name={"data[#{key}:#{unit}]"}
-                                class="w-full h-10 bg-gray-700 text-white border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                                phx-change="edit_data"
-                              >
-                                <option value="true" selected={to_string(value) == "true" || nil}>
-                                  true
-                                </option>
-                                <option value="false" selected={to_string(value) == "false" || nil}>
-                                  false
-                                </option>
-                              </select>
-                            <% unit == "int" -> %>
-                              <input
-                                type="number"
-                                name={"data[#{key}:#{unit}]"}
-                                phx-change="edit_data"
-                                value={Map.get(@edited_values, key, value)}
-                                class="w-full h-10 bg-gray-700 text-white border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                                step="1"
-                              />
-                            <% unit == "string" -> %>
-                              <input
-                                type="text"
-                                name={"data[#{key}:#{unit}]"}
-                                phx-change="edit_data"
-                                value={Map.get(@edited_values, key, value)}
-                                class="w-full h-10 bg-gray-700 text-white border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                              />
-                            <% true -> %>
-                              <div class="flex items-center space-x-2">
+                          <div class="flex items-center w-full">
+                            <%= cond do %>
+                              <% unit == "bool" -> %>
+                                <div class="flex items-center space-x-2 w-full">
+                                  <div class="flex w-3/4">
+                                    <select
+                                      name={"data[#{key}:#{unit}]"}
+                                      class="w-full h-10 bg-gray-700 text-white border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                      phx-change="edit_data"
+                                    >
+                                      <option value="true" selected={to_string(value) == "true"}>
+                                        true
+                                      </option>
+                                      <option value="false" selected={to_string(value) == "false"}>
+                                        false
+                                      </option>
+                                    </select>
+                                  </div>
+                                  <span class="w-[2rem]"></span>
+                                </div>
+                              <% unit == "int" -> %>
                                 <input
                                   type="number"
-                                  name={"data[#{key}:double]"}
+                                  name={"data[#{key}:#{unit}]"}
                                   phx-change="edit_data"
                                   value={Map.get(@edited_values, key, value)}
-                                  class="w-full h-10 bg-gray-700 text-white border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                                  step="0.1"
+                                  class="w-4/5 h-10 bg-gray-700 text-white border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                  step="1"
                                 />
-                                <span class="text-gray-400 text-sm font-medium">{unit}</span>
-                              </div>
-                          <% end %>
+                              <% unit == "string" -> %>
+                                <input
+                                  type="text"
+                                  name={"data[#{key}:#{unit}]"}
+                                  phx-change="edit_data"
+                                  value={Map.get(@edited_values, key, value)}
+                                  class="w-4/5 h-10 bg-gray-700 text-white border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                />
+                              <% true -> %>
+                                <div class="flex items-center space-x-2">
+                                  <input
+                                    type="number"
+                                    name={"data[#{key}:double]"}
+                                    phx-change="edit_data"
+                                    value={Map.get(@edited_values, key, value)}
+                                    class="w-full h-10 bg-gray-700 text-white border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                    step="0.1"
+                                  />
+                                  <span class="text-gray-400 text-sm font-medium w-12 text-center">
+                                    {unit}
+                                  </span>
+                                </div>
+                            <% end %>
+                          </div>
                         </form>
                         <!-- Status Message Below the Field -->
                         <%= if Map.has_key?(@field_messages, key) do %>
@@ -119,6 +132,7 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
                   <% !@config_mode and String.contains?(key, "_read") -> %>
                     <tr class="border-b border-gray-700">
                       <td class="py-2 px-4 text-gray-300">{label}</td>
+
                       <td class="py-2 px-4">
                         <span class="text-gray-200 font-medium">{value} {unit}</span>
                       </td>

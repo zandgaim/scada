@@ -58,7 +58,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
 
           <div class="flex items-center gap-6">
             <div class="flex items-center gap-2">
-              <label for="fetch_interval" class="text-base">Fetch:</label>
+              <label for="fetch_interval" class="text-base">Fetch interva:</label>
               <form phx-change="update_interval">
                 <select
                   id="fetch_interval"
@@ -116,39 +116,6 @@ defmodule ScadaWeb.Pages.ScadaLive do
             general_message={@general_message}
           />
         <% end %>
-        
-    <!-- Form Section -->
-        <section class="bg-white w-full max-w-screen-xl p-6 mt-6 rounded-lg shadow-md text-center">
-          <.form
-            for={@form_data}
-            phx-submit="fetch_data"
-            class="flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
-            <!-- Field Name Input -->
-            <div class="flex flex-col text-left w-full sm:w-auto">
-              <label for="field_name" class="block text-gray-700 font-medium mb-2">
-                Enter Field Name:
-              </label>
-              <input
-                type="text"
-                id="field_name"
-                name="field_name"
-                value={@form_data["field_name"]}
-                placeholder="e.g., field1, field2"
-                phx-change="validate_field"
-                class="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-64"
-              />
-            </div>
-            
-    <!-- Query Button -->
-            <button
-              type="submit"
-              class="bg-teal-700 hover:bg-teal-800 text-white font-semibold px-6 py-2 rounded-lg transition duration-300"
-            >
-              Query
-            </button>
-          </.form>
-        </section>
       </main>
     </div>
     """
