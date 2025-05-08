@@ -84,7 +84,7 @@ defmodule Scada.ADSMenager do
 
   def handle_info({:tcp, socket, data}, %{tcp_buffer: buffer} = state) do
     new_buffer = buffer <> data
-    {decoded_messages, remaining_buffer} = extract_complete_json(new_buffer)
+    {decoded_messages, remaining_buffer} = extract_complete_chunks(new_buffer)
 
     case decoded_messages do
       [] ->
@@ -320,7 +320,7 @@ defmodule Scada.ADSMenager do
     )
   end
 
-  defp extract_complete_json(buffer) do
+  defp extract_complete_chunks(buffer) do
     messages = String.split(buffer, "\n", trim: true)
 
     case List.pop_at(messages, -1) do

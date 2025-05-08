@@ -1,14 +1,5 @@
 import Config
 
-config :scada, ecto_repos: [Scada.Repo]
-
-config :scada, Scada.Repo,
-  database: "scada_repo",
-  username: "postgres",
-  password: "pass",
-  hostname: "localhost",
-  log: false
-
 config :scada,
   generators: [timestamp_type: :utc_datetime],
   python_env: "venv/Scripts/python",
@@ -16,7 +7,7 @@ config :scada,
   tcp_host: "127.0.0.1",
   tcp_port: 8888,
   # Targetr Device id
-  ams_net_id: "39.133.74.23.1.1",
+  ams_net_id: "192.168.56.1.1.1",
   # Targetr Device port
   ams_port: 853,
   # Targetr Device IP
@@ -31,6 +22,28 @@ config :scada,
   route_name: "SCADA_ROUTE",
   # Local IP
   hostname: "192.168.56.1"
+
+config :scada, ecto_repos: [Scada.Repo]
+
+config :scada, Scada.Repo,
+  database: "scada_repo",
+  username: "postgres",
+  password: "pass",
+  hostname: "localhost",
+  log: false
+
+config :scada, Scada.PromEx,
+  manual_metrics_start: false,
+  plugins: [
+    PromEx.Plugins.Beam,
+    PromEx.Plugins.Phoenix,
+    PromEx.Plugins.Ecto,
+    PromEx.Plugins.PlugCowboy
+  ],
+  grafana_agent: [
+    port: 4020,
+    bind_address: "0.0.0.0"
+  ]
 
 # Configures the endpoint
 config :scada, ScadaWeb.Endpoint,
