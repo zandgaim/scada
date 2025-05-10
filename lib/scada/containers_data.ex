@@ -657,12 +657,7 @@ defmodule Scada.ContainersData do
       },
       %{
         title: "Self Power",
-        items: [
-          {"Prędkość wiatru", "Main.WindSpeed", "m/s", "N/A"},
-          {"Śr. prędkość wiatru", "Main.AvWindSpeed", "m/s", "N/A"},
-          {"Kierunek wiatru", "Main.WindDirection", "°", "N/A"},
-          {"Temperatura", "Main.Temperature", "°C", "N/A"}
-        ]
+        items: []
       }
     ]
   end

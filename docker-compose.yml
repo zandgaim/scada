@@ -20,7 +20,7 @@ services:
     networks:
       - global
     ports:
-      - "127.0.0.1:5432:5432"
+      - "5432:5432"
     command: ["postgres", "-c", "config_file=/var/lib/postgresql/data/postgresql.conf"]
 
   app:
@@ -58,6 +58,7 @@ services:
       - grafana_data:/var/lib/grafana
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ALLOW_EMBEDDING=true
 
 volumes:
   db_data:

@@ -4,7 +4,7 @@ defmodule Scada.DataManager do
 
   alias Scada.ContainersData
   alias Scada.ADSMenager
-  alias Scada.Repo
+  alias Scada.DBManager
 
   @scada_transport "scada_pub_sub"
   @update_containers :update_containers
@@ -77,7 +77,7 @@ defmodule Scada.DataManager do
   end
 
   def handle_info(:db_insert, state) do
-    db_insert(state.data)
+    DBManager.insert(state.data)
     schedule_db_insert(state.db_interval)
     {:noreply, state}
   end
@@ -208,47 +208,5 @@ defmodule Scada.DataManager do
       |> Integer.parse()
 
     int_value
-  end
-
-  defp db_insert(data) do
-    now =
-      DateTime.utc_now()
-      |> DateTime.add(2, :hour)
-
-    rounded_now = round_to_nearest_5s(now)
-
-    Enum.each(data, fn %{title: title, items: items} ->
-      Enum.each(items, fn {_label, key, _unit, value} ->
-        unless value == "N/A" or value == "" do
-          try do
-            Repo.insert!(%Scada.DataPoint{
-              container_title: title,
-              key: key,
-              value: :erlang.term_to_binary(value),
-              value_type: infer_value_type(value),
-              recorded_at: rounded_now
-            })
-          rescue
-            e ->
-              Logger.error("Failed to save data: #{inspect(e)}")
-          end
-        end
-      end)
-    end)
-  end
-
-  defp round_to_nearest_5s(dt) do
-    dt
-    |> Map.update!(:second, &(div(&1, 5) * 5))
-    |> Map.put(:microsecond, {0, 6})
-  end
-
-  defp infer_value_type(value) do
-    cond do
-      is_float(value) -> "double"
-      is_integer(value) -> "int"
-      is_boolean(value) -> "bool"
-      true -> "string"
-    end
   end
 end

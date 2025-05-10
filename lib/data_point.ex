@@ -5,8 +5,7 @@ defmodule Scada.DataPoint do
   schema "data_points" do
     field(:container_title, :string)
     field(:key, :string)
-    field(:value, :binary)
-    field(:value_type, :string)
+    field(:value, :float)
     field(:recorded_at, :utc_datetime_usec)
 
     timestamps()
@@ -14,7 +13,7 @@ defmodule Scada.DataPoint do
 
   def changeset(data_point, attrs) do
     data_point
-    |> cast(attrs, [:container_title, :key, :value, :value_type, :recorded_at])
-    |> validate_required([:container_title, :key, :value, :value_type, :recorded_at])
+    |> cast(attrs, [:container_title, :key, :value, :recorded_at])
+    |> validate_required([:container_title, :key, :value, :recorded_at])
   end
 end

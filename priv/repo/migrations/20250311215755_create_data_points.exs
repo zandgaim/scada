@@ -5,7 +5,7 @@ defmodule Scada.Repo.Migrations.CreateDataPoints do
     create table(:data_points) do
       add :container_title, :string, null: false
       add :key, :string, null: false
-      add :value, :binary, null: false
+      add :value, :float, null: false
       add :value_type, :string
       add :recorded_at, :utc_datetime_usec, null: false
 
