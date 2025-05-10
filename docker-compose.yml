@@ -39,15 +39,6 @@ services:
       - "4020:4020"
     entrypoint: ["/app/entrypoint.sh"]
 
-  prometheus:
-    image: prom/prometheus:latest
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9090:9090"
-    networks:
-      - global
-
   grafana:
     image: grafana/grafana-oss:latest
     ports:
