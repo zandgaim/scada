@@ -1,7 +1,7 @@
 apiVersion: 1
 
 datasources:
-  - name: MyPostgres
+  - name: ScadaDB
     type: postgres
     access: proxy
     url: db:5432
@@ -10,3 +10,7 @@ datasources:
     secureJsonData:
       password: pass
     isDefault: true
+    editable: true
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1500 
