@@ -7,7 +7,7 @@ config :scada,
   tcp_host: "127.0.0.1",
   tcp_port: 8888,
   # Targetr Device id
-  ams_net_id: "192.168.56.1.1.1",
+  ams_net_id: "39.133.74.23.1.1",
   # Targetr Device port
   ams_port: 853,
   # Targetr Device IP
