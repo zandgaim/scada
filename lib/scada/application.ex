@@ -10,6 +10,7 @@ defmodule Scada.Application do
     children = [
       ScadaWeb.Telemetry,
       Scada.Repo,
+      Scada.SystemMetrics,
       {DNSCluster, query: Application.get_env(:scada, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Scada.PubSub},
       # Start the Finch HTTP client for sending emails

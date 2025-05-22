@@ -77,7 +77,7 @@ defmodule Scada.DataManager do
   end
 
   def handle_info(:db_insert, state) do
-    DBManager.insert(state.data)
+    DBManager.insert_containers_data(state.data)
     schedule_db_insert(state.db_interval)
     {:noreply, state}
   end
