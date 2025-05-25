@@ -753,6 +753,6 @@
   "timepicker": {},
   "timezone": "browser",
   "title": "SCADA",
-  "uid": "507f4201-3598-4f25-b659-bfe4e88dcf1c",
+  "uid": "scada-dashboard",
   "version": 34
 }
