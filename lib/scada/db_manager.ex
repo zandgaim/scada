@@ -1,6 +1,7 @@
 defmodule Scada.DBManager do
   alias Scada.Repo
   alias Scada.Metrics
+  alias Scada.FetchingTime
 
   require Logger
 
@@ -47,6 +48,14 @@ defmodule Scada.DBManager do
     dt
     |> Map.update!(:second, &(div(&1, 5) * 5))
     |> Map.put(:microsecond, {0, 6})
+  end
+
+  def insert_fetching_time(fetching_time) do
+    %FetchingTime{}
+    |> FetchingTime.changeset(%{
+      fetching_time: fetching_time
+    })
+    |> Repo.insert()
   end
 
   defp to_float(value) do
