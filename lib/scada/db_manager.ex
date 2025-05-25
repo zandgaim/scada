@@ -12,17 +12,12 @@ defmodule Scada.DBManager do
     Enum.each(data, fn %{title: title, items: items} ->
       Enum.each(items, fn {_label, key, _unit, value} ->
         unless value == "N/A" or is_binary(value) do
-          try do
-            Repo.insert!(%Scada.DataPoint{
-              container_title: title,
-              key: prepare_key(key),
-              value: to_float(value),
-              recorded_at: rounded_now
-            })
-          rescue
-            e ->
-              Logger.error("Failed to save data: #{inspect(e)}")
-          end
+          Repo.insert!(%Scada.DataPoint{
+            container_title: title,
+            key: prepare_key(key),
+            value: to_float(value),
+            recorded_at: rounded_now
+          })
         end
       end)
     end)

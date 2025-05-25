@@ -1,4 +1,4 @@
-defmodule Scada.ADSMenager do
+defmodule Scada.Ads.AdsMenager do
   use GenServer
   require Logger
 

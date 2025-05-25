@@ -7,9 +7,6 @@ config :scada, ScadaWeb.Endpoint,
   secret_key_base: "2CdvwocVaVeKxDwcuCBBsxzVTMyrJFnJMscv0OPsH9dphdBp9GhREq4/OIYxN+3R",
   server: false
 
-# In test we don't send emails
-config :scada, Scada.Mailer, adapter: Swoosh.Adapters.Test
-
 # Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false
 

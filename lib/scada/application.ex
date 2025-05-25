@@ -15,7 +15,7 @@ defmodule Scada.Application do
       {Phoenix.PubSub, name: Scada.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: Scada.Finch},
-      Supervisor.child_spec({Scada.ADSMenager, []}, restart: :permanent),
+      Supervisor.child_spec({Scada.Ads.AdsMenager, []}, restart: :permanent),
       Supervisor.child_spec({Scada.DataManager, []}, restart: :permanent),
       # Start a worker by calling: Scada.Worker.start_link(arg)
       # {Scada.Worker, arg},
