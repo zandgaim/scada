@@ -3,7 +3,7 @@ defmodule Scada.DataManager do
   require Logger
 
   alias Scada.ContainersData
-  alias Scada.ADSMenager
+  alias Scada.Ads.AdsMenager
   alias Scada.DBManager
 
   @scada_transport "scada_pub_sub"
@@ -59,7 +59,7 @@ defmodule Scada.DataManager do
     |> Enum.each(fn {_key, params} ->
       params
       |> Map.values()
-      |> ADSMenager.fetch_data()
+      |> AdsMenager.fetch_data()
     end)
 
     schedule_fetch(state.interval)
@@ -77,7 +77,7 @@ defmodule Scada.DataManager do
   end
 
   def handle_info(:db_insert, state) do
-    DBManager.insert(state.data)
+    DBManager.insert_containers_data(state.data)
     schedule_db_insert(state.db_interval)
     {:noreply, state}
   end
@@ -96,7 +96,7 @@ defmodule Scada.DataManager do
         |> Enum.map(fn {key, value} -> {key, parse_value(value)} end)
         |> Enum.into(%{})
 
-      ADSMenager.set_data(converted_data)
+      AdsMenager.set_data(converted_data)
     rescue
       _exception ->
         "⚠️ Invalid data"

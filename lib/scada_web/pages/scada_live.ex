@@ -7,6 +7,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
 
   alias Scada.ContainersData
   alias Scada.DataManager
+  alias Scada.Ads.AdsMenager
 
   alias ScadaWeb.Components.{
     ConnectionStatusComponent,
@@ -90,7 +91,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
           </div>
         </div>
       </header>
-      
+
     <!-- Main Content -->
       <main class="flex flex-col items-center mt-4 px-6">
         <!-- Status Section -->
@@ -102,7 +103,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
           tcp_status={@tcp_status}
           tcp_message={@tcp_message}
         />
-        
+
     <!-- Containers -->
         <.live_component id="containers_main" module={ContainerComponent} containers={@containers} />
 
@@ -150,7 +151,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
         |> String.split(",")
         |> Enum.map(&String.trim/1)
 
-      Scada.ADSMenager.fetch_data(field_list)
+      AdsMenager.fetch_data(field_list)
 
       {:noreply, assign(socket, message: "Fetching data...")}
     else
@@ -235,7 +236,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
     do: title |> to_string() |> String.replace("_", " ")
 
   defp get_state do
-    Scada.ADSMenager.get_state()
+    AdsMenager.get_state()
   end
 
   defp get_containers do
