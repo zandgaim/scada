@@ -56,7 +56,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
       <header class="w-full bg-gray-700 text-white p-4 flex justify-between items-center shadow-md">
         <div class="flex items-center justify-between w-full">
           <h1 class="text-xl font-bold">SCADA Web</h1>
-
+          
           <div class="flex items-center gap-6">
             <div class="flex items-center gap-2">
               <label for="fetch_interval" class="text-base">Fetch interva:</label>
@@ -67,12 +67,14 @@ defmodule ScadaWeb.Pages.ScadaLive do
                   class="bg-gray-600 text-white text-base rounded-md px-2 py-1 border border-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
                 >
                   <option value="1" selected={@fetch_interval == "1"}>1s</option>
+                  
                   <option value="2" selected={@fetch_interval == "2"}>2s</option>
+                  
                   <option value="5" selected={@fetch_interval == "5"}>5s</option>
                 </select>
               </form>
             </div>
-
+            
             <nav class="flex space-x-4">
               <a
                 href="/"
@@ -80,7 +82,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
               >
                 Dashboard
               </a>
-
+              
               <a
                 href="/historical"
                 class={"text-white px-3 py-1 rounded-md #{if @current_tab == "historical_data", do: "bg-gray-500", else: "hover:bg-gray-600"}"}
@@ -91,7 +93,7 @@ defmodule ScadaWeb.Pages.ScadaLive do
           </div>
         </div>
       </header>
-
+      
     <!-- Main Content -->
       <main class="flex flex-col items-center mt-4 px-6">
         <!-- Status Section -->
@@ -103,10 +105,9 @@ defmodule ScadaWeb.Pages.ScadaLive do
           tcp_status={@tcp_status}
           tcp_message={@tcp_message}
         />
-
+        
     <!-- Containers -->
         <.live_component id="containers_main" module={ContainerComponent} containers={@containers} />
-
         <%= if @selected_container do %>
           <.live_component
             module={ContainerTableComponent}

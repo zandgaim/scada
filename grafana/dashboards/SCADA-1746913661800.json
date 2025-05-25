@@ -83,7 +83,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \r\n    DATE_TRUNC('minute', inserted_at) AS time,\r\n    MAX(fetching_time) AS max,\r\n    AVG(fetching_time) AS avg,\r\n    MIN(fetching_time) AS min\r\nFROM fetching_times\r\nWHERE inserted_at >= $__timeFrom() AND inserted_at <= $__timeTo()\r\nGROUP BY DATE_TRUNC('minute', inserted_at)\r\nORDER BY time DESC\r\nLIMIT 200",
+          "rawSql": "SELECT \r\n    DATE_TRUNC('minute', inserted_at) AS time,\r\n    MAX(fetching_time) AS max,\r\n    AVG(fetching_time) AS avg,\r\n    MIN(fetching_time) AS min\r\nFROM fetching_times\r\nWHERE inserted_at >= $__timeFrom() AND inserted_at <= $__timeTo()\r\nGROUP BY DATE_TRUNC('minute', inserted_at)\r\nORDER BY time ASC\r\nLIMIT 200",
           "refId": "A",
           "sql": {
             "columns": [
@@ -747,12 +747,12 @@
     "list": []
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "SCADA",
   "uid": "507f4201-3598-4f25-b659-bfe4e88dcf1c",
-  "version": 33
+  "version": 34
 }

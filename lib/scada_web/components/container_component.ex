@@ -47,18 +47,16 @@ defmodule ScadaWeb.Components.ContainerComponent do
                 </h3>
               </div>
             </div>
-            
-    <!-- Bottom Table Area -->
 
-            <div class="grid grid-cols-3 gap-y-2 text-m text-gray-200 w-full">
-              <%= for {label, _, symb, value} <- Enum.take(container.items, 3) do %>
-                <div class="col-span-2 border-t border-gray-600"></div>
+            <div class="grid grid-cols-2 gap-y-2 text-sm text-gray-200 w-full">
+              <%= for {label, _, symb, value} <- Enum.take(container.items, 4) do %>
+                <div class="col-span-2 border-t border-gray-600 my-1"></div>
 
-                <div class="col-span-1 text-gray-400 font-semibold flex items-center">
-                  <span class="w-2 h-2 rounded-full mr-1 bg-gray-400"></span> {label}
+                <div class="flex items-center gap-1 text-gray-400 font-medium whitespace-nowrap">
+                  <%!-- <span class="w-2 h-2 rounded-full bg-gray-400 inline-block"></span> --%>
+                  <span class="leading-tight">{label}</span>
                 </div>
-
-                <div class="col-span-1 text-right font-semibold">
+                <div class="flex items-center justify-end font-semibold text-white whitespace-nowrap">
                   {value} {if symb, do: symb, else: ""}
                 </div>
               <% end %>
