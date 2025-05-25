@@ -44,7 +44,9 @@ defmodule Scada.DataManager do
     state = %{
       data: initial_state(),
       interval: @default_interval,
-      db_interval: @db_insert_interval
+      db_interval: @db_insert_interval,
+      first_data_arival: false,
+      fetch_timestamp: nil
     }
 
     schedule_fetch(state.interval)
@@ -55,6 +57,8 @@ defmodule Scada.DataManager do
 
   # Handle fetching data
   def handle_info(:fetch_data, state) do
+    fetch_timestamp = System.monotonic_time(:millisecond)
+
     get_parameter_map()
     |> Enum.each(fn {_key, params} ->
       params
@@ -65,7 +69,7 @@ defmodule Scada.DataManager do
     schedule_fetch(state.interval)
     schedule_broadcast(state.interval)
 
-    {:noreply, state}
+    {:noreply, %{state | first_data_arival: true, fetch_timestamp: fetch_timestamp}}
   end
 
   def handle_info(:broadcast_data, state) do
@@ -84,7 +88,11 @@ defmodule Scada.DataManager do
 
   def handle_cast({:store_data, data}, state) do
     new_data = update_state_data(state.data, data)
-    new_state = %{state | data: new_data}
+    new_state = %{state | data: new_data, first_data_arival: false}
+
+    if state.first_data_arival do
+      broadcast_fetching_time(state.fetch_timestamp)
+    end
 
     {:noreply, new_state}
   end
@@ -208,5 +216,12 @@ defmodule Scada.DataManager do
       |> Integer.parse()
 
     int_value
+  end
+
+  defp broadcast_fetching_time(fetch_timestamp) do
+    current_timestamp = System.monotonic_time(:millisecond)
+
+    (current_timestamp - fetch_timestamp)
+    |> DBManager.insert_fetching_time()
   end
 end
