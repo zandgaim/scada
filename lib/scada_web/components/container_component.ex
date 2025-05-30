@@ -49,7 +49,7 @@ defmodule ScadaWeb.Components.ContainerComponent do
             </div>
 
             <div class="grid grid-cols-2 gap-y-2 text-sm text-gray-200 w-full">
-              <%= for {label, _, symb, value} <- Enum.take(container.items, 4) do %>
+              <%= for {label, _, symb, value} <- Enum.take(container.items, 3) do %>
                 <div class="col-span-2 border-t border-gray-600 my-1"></div>
 
                 <div class="flex items-center gap-1 text-gray-400 font-medium whitespace-nowrap">

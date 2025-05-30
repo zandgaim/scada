@@ -20,7 +20,7 @@ config :scada,
   plc_password: "1",
   # Route Name
   route_name: "SCADA_ROUTE",
-  # Local IP
+  # Local IP, should be same as the TwinCat routing
   hostname: "192.168.56.1"
 
 config :scada, ecto_repos: [Scada.Repo]
