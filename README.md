@@ -1,6 +1,8 @@
-# SCADA System Implementation in Elixir
+# SCADA
 
 This project is a Supervisory Control and Data Acquisition (SCADA) system developed using the Elixir programming language. It provides real-time monitoring and control capabilities for industrial processes.
+
+This project is developed as part of a master's thesis in cooperation with SIMES.
 
 Features:
 
