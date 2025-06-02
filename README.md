@@ -15,4 +15,5 @@ Features:
 
 Install Docker, then:
 
-  * `docker-compose up --build`
+  * `docker-compose up --build` or
+  * `docker-compose up -d`
