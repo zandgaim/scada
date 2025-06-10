@@ -117,7 +117,9 @@ defmodule ScadaWeb.Components.ContainerComponent do
 
   defp get_connection(data) do
     data.items
-    |> Enum.find(fn {label, _, _, _} -> label == "Connections [true/false]" end)
+    |> Enum.find(fn {_, key, _, _} ->
+      String.ends_with?(key, ".Connection") and String.contains?(key, "MeterDC_DAB_")
+    end)
     |> case do
       {_, _, _, value} -> value
       nil -> nil

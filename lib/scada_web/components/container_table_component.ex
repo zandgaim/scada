@@ -23,7 +23,7 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
             ✖
           </button>
         </div>
-        
+
     <!-- Toggle View Buttons -->
         <div class="flex gap-2 my-4">
           <button
@@ -46,7 +46,7 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
             Config
           </button>
         </div>
-        
+
     <!-- Scrollable Content -->
         <div class="flex-grow overflow-y-auto max-h-[70vh] border border-gray-700 rounded-lg p-4 bg-gray-800">
           <table class="w-full text-white">
@@ -123,7 +123,7 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
                         </form>
                         <!-- Status Message Below the Field -->
                         <%= if Map.has_key?(@field_messages, key) do %>
-                          <p class="mt-1 text-xs text-red-400 font-medium">
+                          <p class="mt-1 text-xs text-white-400 font-medium">
                             {@field_messages[key]}
                           </p>
                         <% end %>
@@ -144,7 +144,7 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
             </tbody>
           </table>
         </div>
-        
+
     <!-- Save Button -->
         <%= if @config_mode do %>
           <div class="mt-4 flex items-center justify-between">
@@ -154,7 +154,7 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
             >
               Save
             </button>
-            
+
     <!-- Error message -->
             <%= if @general_message do %>
               <div class="ml-2 px-3 py-1 text-sm font-semibold rounded-lg bg-red-500 text-white max-w-[250px] truncate">

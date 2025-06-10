@@ -34,7 +34,7 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
 
       <div class="w-full" style="height: calc(100vh - 4rem);">
         <iframe
-          src="http://localhost:3000/d/scada-dashboard"
+          src="http://192.168.56.103:3000/d/scada-dashboard"
           class="w-full h-full"
           frameborder="0"
         >
