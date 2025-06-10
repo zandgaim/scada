@@ -13,6 +13,13 @@ Features:
  * Docker support for easy deployment
 # Setup
 
-Install Docker, then:
+Make sure Docker and Docker Compose are installed, then:
 
-  * `docker-compose up --build`
+ * `docker-compose up --build -d`
+ Builds images (if needed) and starts the containers in the background (detached mode).
+
+* `docker-compose up -d`
+ Starts the containers using existing images, without rebuilding.
+
+* `docker-compose down`
+ Stops and removes all containers defined in docker-compose.yml.
