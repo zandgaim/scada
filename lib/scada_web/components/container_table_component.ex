@@ -18,12 +18,12 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
           <h2 class="text-2xl font-semibold text-white">
             {id_to_title(@container_name)}
           </h2>
-
+          
           <button phx-click="hide_table" class="text-white text-2xl hover:text-gray-300 transition">
             ✖
           </button>
         </div>
-
+        
     <!-- Toggle View Buttons -->
         <div class="flex gap-2 my-4">
           <button
@@ -35,7 +35,7 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
           >
             View
           </button>
-
+          
           <button
             phx-click="switch_view"
             phx-target={@myself}
@@ -46,25 +46,25 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
             Config
           </button>
         </div>
-
+        
     <!-- Scrollable Content -->
         <div class="flex-grow overflow-y-auto max-h-[70vh] border border-gray-700 rounded-lg p-4 bg-gray-800">
           <table class="w-full text-white">
             <thead>
               <tr>
                 <th class="py-2 px-4 text-left font-semibold text-gray-200">Label</th>
-
+                
                 <th class="py-2 px-4 text-left font-semibold text-gray-200">Value</th>
               </tr>
             </thead>
-
+            
             <tbody>
               <%= for {label, key, unit, value} <- @items do %>
                 <%= cond do %>
                   <% @config_mode and String.contains?(key, "_set") -> %>
                     <tr class="border-b border-gray-700">
                       <td class="py-2 px-4 text-gray-300">{label}</td>
-
+                      
                       <td class="py-2 px-4">
                         <form phx-change="edit_data" class="w-full">
                           <div class="flex items-center w-full">
@@ -80,12 +80,13 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
                                       <option value="true" selected={to_string(value) == "true"}>
                                         true
                                       </option>
+                                      
                                       <option value="false" selected={to_string(value) == "false"}>
                                         false
                                       </option>
                                     </select>
                                   </div>
-                                  <span class="w-[2rem]"></span>
+                                   <span class="w-[2rem]"></span>
                                 </div>
                               <% unit == "int" -> %>
                                 <input
@@ -132,7 +133,7 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
                   <% !@config_mode and String.contains?(key, "_read") -> %>
                     <tr class="border-b border-gray-700">
                       <td class="py-2 px-4 text-gray-300">{label}</td>
-
+                      
                       <td class="py-2 px-4">
                         <span class="text-gray-200 font-medium">{value} {unit}</span>
                       </td>
@@ -144,7 +145,7 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
             </tbody>
           </table>
         </div>
-
+        
     <!-- Save Button -->
         <%= if @config_mode do %>
           <div class="mt-4 flex items-center justify-between">
@@ -154,7 +155,7 @@ defmodule ScadaWeb.Components.ContainerTableComponent do
             >
               Save
             </button>
-
+            
     <!-- Error message -->
             <%= if @general_message do %>
               <div class="ml-2 px-3 py-1 text-sm font-semibold rounded-lg bg-red-500 text-white max-w-[250px] truncate">

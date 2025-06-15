@@ -8,7 +8,8 @@ defmodule Scada.Metrics do
     :memory_usage_mb,
     :memory_working_set_mb,
     :rx_bytes_mb,
-    :tx_bytes_mb
+    :tx_bytes_mb,
+    :recorded_at
   ]
 
   schema "metrics" do
@@ -18,6 +19,7 @@ defmodule Scada.Metrics do
     field(:memory_working_set_mb, :float)
     field(:rx_bytes_mb, :float)
     field(:tx_bytes_mb, :float)
+    field(:recorded_at, :utc_datetime_usec)
 
     timestamps()
   end

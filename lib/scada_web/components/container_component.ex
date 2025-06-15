@@ -14,7 +14,7 @@ defmodule ScadaWeb.Components.ContainerComponent do
         <line x1="175" y1="1130" x2="2325" y2="1130" stroke="#1989ac" stroke-width="6" />
         <line x1="820" y1="50" x2="820" y2="1250" stroke="#be3144" stroke-width="8" />
       </svg>
-
+      
       <%= for {title, container} <- @containers do %>
         <% id = normalize_id(title)
         {top, left} = position_coordinates(id) %>
@@ -40,22 +40,23 @@ defmodule ScadaWeb.Components.ContainerComponent do
                   />
                 </div>
               </div>
-
+              
               <div class="flex-grow">
                 <h3 class="text-xl font-bold text-white">
                   {normalize_title(title) || "Untitled"}
                 </h3>
               </div>
             </div>
-
+            
             <div class="grid grid-cols-2 gap-y-2 text-sm text-gray-200 w-full">
               <%= for {label, _, symb, value} <- Enum.take(container.items, 3) do %>
                 <div class="col-span-2 border-t border-gray-600 my-1"></div>
-
+                
                 <div class="flex items-center gap-1 text-gray-400 font-medium whitespace-nowrap">
                   <%!-- <span class="w-2 h-2 rounded-full bg-gray-400 inline-block"></span> --%>
                   <span class="leading-tight">{label}</span>
                 </div>
+                
                 <div class="flex items-center justify-end font-semibold text-white whitespace-nowrap">
                   {value} {if symb, do: symb, else: ""}
                 </div>

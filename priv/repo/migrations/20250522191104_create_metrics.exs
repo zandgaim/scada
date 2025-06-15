@@ -9,11 +9,12 @@ defmodule Scada.Repo.Migrations.CreateMetrics do
       add :memory_working_set_mb, :float
       add :rx_bytes_mb, :float
       add :tx_bytes_mb, :float
+      add :recorded_at, :utc_datetime_usec, null: false
 
       timestamps()
     end
 
     create index(:metrics, [:container_title])
-    create index(:metrics, [:inserted_at])
+    create index(:metrics, [:recorded_at])
   end
 end

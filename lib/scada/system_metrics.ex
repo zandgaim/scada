@@ -5,7 +5,8 @@ defmodule Scada.SystemMetrics do
   alias Scada.DBManager
 
   @poll_interval :timer.seconds(5)
-  @cadvisor_url "http://cadvisor:8080/api/v1.3/docker"
+  @cadvisor_docker_url "http://cadvisor:8080/api/v1.3/docker"
+  @cadvisor_machine_url "http://cadvisor:8080/api/v1.3/machine"
 
   # Client API
   def start_link(_opts) do
@@ -15,13 +16,24 @@ defmodule Scada.SystemMetrics do
   # Server callbacks
   @impl true
   def init(:ok) do
-    schedule_poll()
-    {:ok, %{previous_cpu: %{}}}
+    case get_machine_cpu_info() do
+      {:ok, num_vm_cores} ->
+        schedule_poll()
+        {:ok, %{previous_cpu: %{}, num_vm_cores: num_vm_cores}}
+
+      {:error, reason} ->
+        Logger.error(
+          "Failed to get VM CPU info from cAdvisor: #{inspect(reason)}. Defaulting to 1 core for calculations."
+        )
+
+        schedule_poll()
+        {:ok, %{previous_cpu: %{}, num_vm_cores: 1}}
+    end
   end
 
   @impl true
-  def handle_info(:poll, %{previous_cpu: prev_cpu} = state) do
-    case get_metrics_from_cadvisor(prev_cpu) do
+  def handle_info(:poll, %{previous_cpu: prev_cpu, num_vm_cores: num_vm_cores} = state) do
+    case get_metrics_from_cadvisor(prev_cpu, num_vm_cores) do
       {:ok, metrics_list, new_cpu} ->
         Enum.each(metrics_list, fn metrics ->
           :telemetry.execute([:scada, :system, :resources], metrics, %{})
@@ -29,7 +41,7 @@ defmodule Scada.SystemMetrics do
         end)
 
         schedule_poll()
-        {:noreply, %{previous_cpu: new_cpu}}
+        {:noreply, %{state | previous_cpu: new_cpu}}
 
       {:error, reason} ->
         Logger.error("Failed to fetch metrics from cAdvisor: #{inspect(reason)}")
@@ -42,8 +54,8 @@ defmodule Scada.SystemMetrics do
     Process.send_after(self(), :poll, @poll_interval)
   end
 
-  defp get_metrics_from_cadvisor(prev_stats) do
-    url = String.to_charlist(@cadvisor_url)
+  defp get_metrics_from_cadvisor(prev_stats, num_vm_cores) do
+    url = String.to_charlist(@cadvisor_docker_url)
 
     case :httpc.request(:get, {url, []}, [], []) do
       {:ok, {{_, 200, _}, _headers, body}} ->
@@ -52,7 +64,7 @@ defmodule Scada.SystemMetrics do
         {metrics, new_stats} =
           containers
           |> Enum.map(fn {id, container} ->
-            build_metrics(id, container, prev_stats[id])
+            build_metrics(id, container, prev_stats[id], num_vm_cores)
           end)
           |> Enum.filter(&match?({:ok, _}, &1))
           |> Enum.map_reduce(%{}, fn {:ok, {metrics, stat}}, acc ->
@@ -66,7 +78,34 @@ defmodule Scada.SystemMetrics do
     end
   end
 
-  defp build_metrics(container_id, container, prev_stat) do
+  defp get_machine_cpu_info do
+    url = String.to_charlist(@cadvisor_machine_url)
+
+    case :httpc.request(:get, {url, []}, [], []) do
+      {:ok, {{_, 200, _}, _headers, body}} ->
+        case Jason.decode(body) do
+          {:ok, machine_info} ->
+            num_cores =
+              Map.get(machine_info, "num_cpu_threads") || Map.get(machine_info, "num_cores")
+
+            if is_integer(num_cores) and num_cores > 0 do
+              {:ok, num_cores}
+            else
+              {:error, "invalid_cpu_info"}
+            end
+
+          {:error, e} ->
+            Logger.error("Failed to parse cAdvisor machine info JSON: #{inspect(e)}")
+            {:error, :json_parse_error}
+        end
+
+      error ->
+        Logger.error("Failed to fetch cAdvisor machine info: #{inspect(error)}")
+        {:error, error}
+    end
+  end
+
+  defp build_metrics(container_id, container, prev_stat, num_vm_cores) do
     try do
       aliases = container["aliases"] || []
       name = List.first(aliases) || container["name"] || "unknown"
@@ -88,8 +127,14 @@ defmodule Scada.SystemMetrics do
 
           case calculate_elapsed_time(prev_timestamp, timestamp) do
             elapsed_time when elapsed_time > 0 ->
-              # Convert delta_total from nanoseconds to seconds and calculate percentage
-              delta_total / 1_000_000_000 / elapsed_time * 100.0
+              used_cores = delta_total / 1_000_000_000 / elapsed_time
+
+              if num_vm_cores > 0 do
+                used_cores / num_vm_cores * 100.0
+              else
+                Logger.warning("num_vm_cores is 0, CPU utilization set to 0.0 for #{name}")
+                0.0
+              end
 
             _ ->
               0.0

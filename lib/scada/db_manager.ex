@@ -6,9 +6,7 @@ defmodule Scada.DBManager do
   require Logger
 
   def insert_containers_data(data) do
-    now = DateTime.utc_now()
-
-    rounded_now = round_to_nearest_5s(now)
+    rounded_time = round_to_nearest_5s()
 
     Enum.each(data, fn %{title: title, items: items} ->
       Enum.each(items, fn {_label, key, _unit, value} ->
@@ -17,7 +15,7 @@ defmodule Scada.DBManager do
             container_title: title,
             key: prepare_key(key),
             value: to_float(value),
-            recorded_at: rounded_now
+            recorded_at: rounded_time
           })
         end
       end)
@@ -32,6 +30,8 @@ defmodule Scada.DBManager do
         rx_bytes_mb: rx,
         tx_bytes_mb: tx
       }) do
+    rounded_time = round_to_nearest_5s()
+
     %Metrics{}
     |> Metrics.changeset(%{
       container_title: title,
@@ -39,13 +39,14 @@ defmodule Scada.DBManager do
       memory_usage_mb: mem,
       memory_working_set_mb: working_set,
       rx_bytes_mb: rx,
-      tx_bytes_mb: tx
+      tx_bytes_mb: tx,
+      recorded_at: rounded_time
     })
     |> Repo.insert()
   end
 
-  defp round_to_nearest_5s(dt) do
-    dt
+  defp round_to_nearest_5s() do
+    DateTime.utc_now()
     |> Map.update!(:second, &(div(&1, 5) * 5))
     |> Map.put(:microsecond, {0, 6})
   end
