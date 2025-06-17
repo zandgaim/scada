@@ -12,6 +12,7 @@ services:
       POSTGRES_DB: scada_repo
     volumes:
       - ./pgdata:/var/lib/postgresql/data
+      - ./init-grafana-user.sql:/docker-entrypoint-initdb.d/init-grafana-user.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s

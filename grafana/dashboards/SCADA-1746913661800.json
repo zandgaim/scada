@@ -378,93 +378,6 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "#EAB839",
-                "value": 300
-              },
-              {
-                "color": "red",
-                "value": 499.9997
-              }
-            ]
-          },
-          "unit": "decmbytes"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 6,
-        "y": 4
-      },
-      "id": 10,
-      "interval": "5s",
-      "maxDataPoints": 1500,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.0.1",
-      "targets": [
-        {
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT \r\n    MAX(memory_usage_mb) AS max,\r\n    AVG(memory_usage_mb) AS avg,\r\n    MIN(memory_usage_mb) AS min\r\nFROM metrics\r\nWHERE $__timeFilter(recorded_at)\r\n  AND container_title = 'scada-db-1'",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Db RAM Usage",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "P5789EBAFDD3C1C50"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
             "mode": "palette-classic"
           },
           "custom": {
@@ -548,9 +461,9 @@
         ]
       },
       "gridPos": {
-        "h": 16,
-        "w": 12,
-        "x": 12,
+        "h": 8,
+        "w": 9,
+        "x": 6,
         "y": 4
       },
       "id": 5,
@@ -686,10 +599,10 @@
         ]
       },
       "gridPos": {
-        "h": 12,
-        "w": 12,
-        "x": 0,
-        "y": 8
+        "h": 8,
+        "w": 9,
+        "x": 15,
+        "y": 4
       },
       "id": 7,
       "options": {
@@ -734,6 +647,93 @@
       ],
       "title": "RAM Usage",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "P5789EBAFDD3C1C50"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "#EAB839",
+                "value": 300
+              },
+              {
+                "color": "red",
+                "value": 499.9997
+              }
+            ]
+          },
+          "unit": "decmbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 8
+      },
+      "id": 10,
+      "interval": "5s",
+      "maxDataPoints": 1500,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.0.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \r\n    MAX(memory_usage_mb) AS max,\r\n    AVG(memory_usage_mb) AS avg,\r\n    MIN(memory_usage_mb) AS min\r\nFROM metrics\r\nWHERE $__timeFilter(recorded_at)\r\n  AND container_title = 'scada-db-1'",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Db RAM Usage",
+      "type": "stat"
     },
     {
       "datasource": {
@@ -798,7 +798,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 20
+        "y": 12
       },
       "id": 2,
       "options": {
@@ -907,7 +907,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 20
+        "y": 12
       },
       "id": 3,
       "options": {
@@ -1016,7 +1016,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 29
+        "y": 21
       },
       "id": 1,
       "options": {
@@ -1211,7 +1211,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 29
+        "y": 21
       },
       "id": 4,
       "options": {
@@ -1273,5 +1273,5 @@
   "timezone": "browser",
   "title": "SCADA",
   "uid": "scada-dashboard",
-  "version": 7
+  "version": 10
 }

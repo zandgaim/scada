@@ -36,7 +36,6 @@ defmodule Scada.SystemMetrics do
     case get_metrics_from_cadvisor(prev_cpu, num_vm_cores) do
       {:ok, metrics_list, new_cpu} ->
         Enum.each(metrics_list, fn metrics ->
-          :telemetry.execute([:scada, :system, :resources], metrics, %{})
           DBManager.insert_metrics(metrics)
         end)
 

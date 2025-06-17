@@ -6,11 +6,11 @@ datasources:
     access: proxy
     url: db:5432
     database: scada_repo
-    user: postgres
+    user: grafana_user
     secureJsonData:
-      password: pass
+      password: grafana_pass
     isDefault: true
     editable: true
     jsonData:
       sslmode: disable
-      postgresVersion: 1500 
+      postgresVersion: 1500

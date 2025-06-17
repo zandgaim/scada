@@ -8,7 +8,6 @@ defmodule Scada.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      ScadaWeb.Telemetry,
       Scada.Repo,
       Scada.SystemMetrics,
       {DNSCluster, query: Application.get_env(:scada, :dns_cluster_query) || :ignore},
