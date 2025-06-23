@@ -3,9 +3,12 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
   import Phoenix.Component
 
   def mount(_params, _session, socket) do
+    grafana_url = Application.get_env(:scada, :grafana_url, "http://localhost:3000")
+
     {:ok,
      assign(socket,
-       current_tab: "historical_data"
+       current_tab: "historical_data",
+       grafana_url: grafana_url
      )}
   end
 
@@ -33,11 +36,7 @@ defmodule ScadaWeb.Pages.HistoricalDataLive do
       </header>
 
       <div class="w-full" style="height: calc(100vh - 4rem);">
-        <iframe
-          src="http://192.168.56.103:3000/d/scada-dashboard"
-          class="w-full h-full"
-          frameborder="0"
-        >
+        <iframe src={"#{@grafana_url}/d/scada-dashboard"} class="w-full h-full" frameborder="0">
         </iframe>
       </div>
     </div>

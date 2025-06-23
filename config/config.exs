@@ -21,7 +21,8 @@ config :scada,
   # Route Name
   route_name: "SCADA_ROUTE",
   # Local IP, should be same as the TwinCat routing
-  hostname: "192.168.56.1"
+  hostname: "192.168.56.1",
+  grafana_url: "http://192.168.56.103:3000"
 
 config :scada, ecto_repos: [Scada.Repo]
 

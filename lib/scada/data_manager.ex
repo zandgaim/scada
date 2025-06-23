@@ -81,8 +81,6 @@ defmodule Scada.DataManager do
   end
 
   def handle_info(:db_insert, state) do
-    time = Time.utc_now() |> Time.to_string()
-
     Task.start(fn ->
       DBManager.insert_containers_data(state.data)
     end)

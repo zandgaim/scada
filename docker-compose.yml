@@ -6,6 +6,7 @@ services:
   db:
     image: postgres:15
     restart: always
+    shm_size: '2g'
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pass
