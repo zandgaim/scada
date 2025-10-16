@@ -2,7 +2,7 @@
 
 This project is a Supervisory Control and Data Acquisition (SCADA) system developed using the Elixir programming language. It provides real-time monitoring and control capabilities for industrial processes.
 
-This project is developed as part of a master's thesis in cooperation with SIMES.
+[This project is developed as part of a master's thesis in cooperation with SIMES.](https://repo.pw.edu.pl/info/master/WUT6795a596cc0340e3a3e0a5721ac7acac?r=supervisedwork&ps=20&tab=&title=Prace%2Bmagisterskie%2B%25E2%2580%2593%2BProjektowanie%2Bi%2Bimplementacja%2Bsystemu%2BSCADA%2Bw%2Bj%25C4%2599zyku%2Bprogramowania%2BELIXIR%2B%25E2%2580%2593%2BPolitechnika%2BWarszawska&lang=pl)
 
 Features:
 
